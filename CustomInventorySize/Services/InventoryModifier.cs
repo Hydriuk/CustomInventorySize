@@ -100,6 +100,18 @@ namespace CustomInventorySize.Services
         /// <returns> A byte representing the indexes of the pages that have been changed </returns>
         private byte TryModifyPage(Player player, GroupSizes sizes, byte pageIndex)
         {
+            if(pageIndex == PlayerInventory.SLOTS)
+            {
+                // Get the configuration for this page
+                PageSize pageSize = sizes.Pages.FirstOrDefault(page => page.PageIndex == pageIndex);
+
+                // Change the page size
+                if (pageSize != null)
+                    return SendModifyPage(player, pageIndex, pageSize.Width, pageSize.Height);
+
+                return 0;
+            }
+
             // Get the item id of the player's equipped item on the current slot
             ushort itemId = 0;
             if (pageIndex == PlayerInventory.BACKPACK)
@@ -111,10 +123,12 @@ namespace CustomInventorySize.Services
             else if (pageIndex == PlayerInventory.PANTS)
                 itemId = player.clothing.pants;
 
+            // The item was removed, ignore the page
+            if(itemId == 0)
+                return (byte)Math.Pow(2, pageIndex);
+
             // Get the configuration for this item
-            ItemStorageSize itemSize = null;
-            if (itemId != 0)
-                itemSize = sizes.Items.FirstOrDefault(item => item.ItemId == itemId);
+            ItemStorageSize itemSize = sizes.Items.FirstOrDefault(item => item.ItemId == itemId);
 
             if (itemSize != null)
             {
@@ -123,7 +137,7 @@ namespace CustomInventorySize.Services
             }
             else
             {
-                // Get the configuration for this page
+                // Get the default configuration for this page
                 PageSize pageSize = sizes.Pages.FirstOrDefault(page => page.PageIndex == pageIndex);
 
                 // Change the page size
