@@ -1,4 +1,6 @@
-﻿using Rocket.Core;
+﻿using CustomInventorySize.Events;
+using CustomInventorySize.Services;
+using Rocket.Core;
 using Rocket.Core.Plugins;
 using Rocket.Unturned.Player;
 using SDG.NetTransport;
@@ -15,45 +17,27 @@ namespace CustomInventorySize
 {
     public class CustomInventorySize : RocketPlugin<Configuration>
     {
-        private static readonly ClientInstanceMethod<byte, byte, byte> SendSize = ClientInstanceMethod<byte, byte, byte>.Get(typeof(PlayerInventory), "ReceiveSize");
+        public static CustomInventorySize Instance { get; private set; }
+
+        private InventoryModifier _inventoryModifier;
+
+        private PlayerConnectedEvent _playerConnectedEvent;
+        private PlayerClothingEquippedEvent _playerClothingEquippedEvent;
 
         protected override void Load()
         {
-            Provider.onServerConnected += OnPlayerConnected;
+            Instance = this;
+
+            _inventoryModifier = new InventoryModifier(Configuration.Instance);
+
+            _playerConnectedEvent = new PlayerConnectedEvent(_inventoryModifier);
+            _playerClothingEquippedEvent = new PlayerClothingEquippedEvent(_inventoryModifier);
         }
 
         protected override void Unload()
         {
-            Provider.onServerConnected -= OnPlayerConnected;
-        }
-
-        private void OnPlayerConnected(CSteamID playerId)
-        {
-            var sizesProvider = Configuration.Instance.Groups.ToDictionary(group => group.GroupName);
-            var uPlayer = UnturnedPlayer.FromCSteamID(playerId);
-
-            var groups = R.Permissions.GetGroups(uPlayer, true);
-
-            groups = groups.OrderBy(p => p.Priority).ToList();
-
-            foreach (var group in groups)
-            {
-                if (!sizesProvider.ContainsKey(group.Id))
-                    continue;
-
-                foreach (var pageSize in sizesProvider[group.Id].Pages)
-                {
-                    SendSize.Invoke(
-                        uPlayer.Player.inventory.GetNetId(),
-                        ENetReliability.Reliable,
-                        uPlayer.Player.inventory.channel.GetOwnerTransportConnection(),
-                        pageSize.PageIndex,
-                        pageSize.Width,
-                        pageSize.Height);
-                }
-
-                break;
-            }
+            _playerConnectedEvent.Dispose();
+            _playerClothingEquippedEvent.Dispose();
         }
     }
 }

@@ -75,11 +75,14 @@
   <ItemGroup>
     <Compile Include="Configuration.cs" />
     <Compile Include="CustomInventorySize.cs" />
+    <Compile Include="Events\PlayerConnectedEvent.cs" />
+    <Compile Include="Events\PlayerClothingEquippedEvent.cs" />
     <Compile Include="Models\ItemStorageSize.cs" />
     <Compile Include="Models\PageSize.cs" />
     <Compile Include="Models\GroupSizes.cs" />
     <Compile Include="Models\StorageSize.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\InventoryModifier.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
