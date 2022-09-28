@@ -139,6 +139,10 @@ namespace CustomInventorySize.Services
 
         private byte SendModifyPage(Player player, byte page, byte width, byte height)
         {
+            // Update inventory size server side
+            player.inventory.items[page].resize(width, height);
+
+            // Update inventory size client side
             _sendSize.Invoke(
                 player.inventory.GetNetId(),
                 ENetReliability.Reliable,
@@ -147,6 +151,13 @@ namespace CustomInventorySize.Services
                 width,
                 height
             );
+
+            // Drop items that exceed the new inventory space
+            foreach (var item in player.inventory.items[page].items)
+            {
+                if (item.x + item.size_x > width || item.y + item.size_y > height)
+                    player.inventory.sendDropItem(page, item.x, item.y);
+            }
 
             // Convert the page index to its base 2 value
             return (byte)Math.Pow(2, page);
