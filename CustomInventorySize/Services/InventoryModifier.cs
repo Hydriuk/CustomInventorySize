@@ -16,8 +16,6 @@ namespace CustomInventorySize.Services
 {
     public class InventoryModifier
     {
-        private static readonly ClientInstanceMethod<byte, byte, byte> _sendSize = ClientInstanceMethod<byte, byte, byte>.Get(typeof(PlayerInventory), "ReceiveSize");
-
         private readonly Dictionary<string, GroupSizes> _groupSizesProvider;
 
         public InventoryModifier(Configuration configuration)
@@ -141,16 +139,6 @@ namespace CustomInventorySize.Services
         {
             // Update inventory size server side
             player.inventory.items[page].resize(width, height);
-
-            // Update inventory size client side
-            _sendSize.Invoke(
-                player.inventory.GetNetId(),
-                ENetReliability.Reliable,
-                player.inventory.channel.GetOwnerTransportConnection(),
-                page,
-                width,
-                height
-            );
 
             // Drop items that exceed the new inventory space
             foreach (var item in player.inventory.items[page].items)

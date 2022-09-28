@@ -23,6 +23,7 @@ namespace CustomInventorySize
 
         private PlayerConnectedEvent _playerConnectedEvent;
         private PlayerClothingEquippedEvent _playerClothingEquippedEvent;
+        private PlayerLifeUpdatedEvent _playerLifeUpdatedEvent;
 
         protected override void Load()
         {
@@ -32,12 +33,14 @@ namespace CustomInventorySize
 
             _playerConnectedEvent = new PlayerConnectedEvent(_inventoryModifier);
             _playerClothingEquippedEvent = new PlayerClothingEquippedEvent(_inventoryModifier);
+            _playerLifeUpdatedEvent = new PlayerLifeUpdatedEvent(_inventoryModifier);
         }
 
         protected override void Unload()
         {
             _playerConnectedEvent.Dispose();
             _playerClothingEquippedEvent.Dispose();
+            _playerLifeUpdatedEvent.Dispose();
         }
     }
 }
