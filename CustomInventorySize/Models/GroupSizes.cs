@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace CustomInventorySize.Models
 {
     public class GroupSizes
     {
+        [XmlAttribute()]
         public string GroupName { get; set; } = string.Empty;
 
         [XmlArrayItem("ItemStorage")]
@@ -17,7 +14,8 @@ namespace CustomInventorySize.Models
         [XmlArrayItem("Page")]
         public List<PageSize> Pages { get; set; } = new List<PageSize>();
 
-        public GroupSizes() { }
+        public GroupSizes()
+        { }
 
         public GroupSizes(string groupName)
         {

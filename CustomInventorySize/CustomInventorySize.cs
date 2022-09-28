@@ -1,17 +1,7 @@
 ﻿using CustomInventorySize.Events;
 using CustomInventorySize.Services;
-using Rocket.Core;
 using Rocket.Core.Plugins;
-using Rocket.Unturned.Player;
-using SDG.NetTransport;
 using SDG.Unturned;
-using Steamworks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 
 namespace CustomInventorySize
 {
@@ -31,16 +21,31 @@ namespace CustomInventorySize
 
             _inventoryModifier = new InventoryModifier(Configuration.Instance);
 
-            _playerConnectedEvent = new PlayerConnectedEvent(_inventoryModifier);
-            _playerClothingEquippedEvent = new PlayerClothingEquippedEvent(_inventoryModifier);
-            _playerLifeUpdatedEvent = new PlayerLifeUpdatedEvent(_inventoryModifier);
+            if (Configuration.Instance.Enabled)
+            {
+                _playerConnectedEvent = new PlayerConnectedEvent(_inventoryModifier);
+                _playerClothingEquippedEvent = new PlayerClothingEquippedEvent(_inventoryModifier);
+                _playerLifeUpdatedEvent = new PlayerLifeUpdatedEvent(_inventoryModifier);
+            }
+
+            // Set the inventory size for all connected players
+            foreach (var sPlayer in Provider.clients)
+            {
+                if (Configuration.Instance.Enabled)
+                    _inventoryModifier.ModifyInventory(sPlayer.playerID.steamID);
+                else
+                    _inventoryModifier.ResetInventorySize(sPlayer.player);
+            }
         }
 
         protected override void Unload()
         {
-            _playerConnectedEvent.Dispose();
-            _playerClothingEquippedEvent.Dispose();
-            _playerLifeUpdatedEvent.Dispose();
+            if (Configuration.Instance.Enabled)
+            {
+                _playerConnectedEvent.Dispose();
+                _playerClothingEquippedEvent.Dispose();
+                _playerLifeUpdatedEvent.Dispose();
+            }
         }
     }
 }

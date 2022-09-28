@@ -1,10 +1,6 @@
 ﻿using CustomInventorySize.Services;
 using SDG.Unturned;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomInventorySize.Events
 {
@@ -31,8 +27,11 @@ namespace CustomInventorySize.Events
         }
 
         private void OnBackpackChanged(PlayerClothing clothing) => _inventoryModifier.ModifyPage(clothing.player, PlayerInventory.BACKPACK);
+
         private void OnVestChanged(PlayerClothing clothing) => _inventoryModifier.ModifyPage(clothing.player, PlayerInventory.VEST);
+
         private void OnShirtChanged(PlayerClothing clothing) => _inventoryModifier.ModifyPage(clothing.player, PlayerInventory.SHIRT);
+
         private void OnPantsChanged(PlayerClothing clothing) => _inventoryModifier.ModifyPage(clothing.player, PlayerInventory.PANTS);
     }
 }

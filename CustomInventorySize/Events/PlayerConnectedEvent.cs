@@ -1,17 +1,7 @@
-﻿using CustomInventorySize.Models;
-using CustomInventorySize.Services;
-using Rocket.API.Serialisation;
-using Rocket.Core;
-using Rocket.Unturned.Player;
-using SDG.NetTransport;
+﻿using CustomInventorySize.Services;
 using SDG.Unturned;
 using Steamworks;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Rocket.Unturned.Events.UnturnedEvents;
 
 namespace CustomInventorySize.Events
 {
