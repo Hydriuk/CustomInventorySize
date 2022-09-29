@@ -180,7 +180,7 @@ namespace CustomInventorySize.Services
         /// <param name="width"> New width of the page </param>
         /// <param name="height"> New height of the page </param>
         /// <returns> A byte representing the index of the page that has been changed </returns>
-        private byte SendModifyPage(Player player, byte pageIndex, byte width, byte height)
+        public byte SendModifyPage(Player player, byte pageIndex, byte width, byte height)
         {
             // Update inventory size
             player.inventory.items[pageIndex].resize(width, height);

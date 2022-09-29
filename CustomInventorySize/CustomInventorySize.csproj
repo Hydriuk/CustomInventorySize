@@ -73,6 +73,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\ResetInventorySizeCommand.cs" />
+    <Compile Include="Commands\SetInventorySizeCommand.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="CustomInventorySize.cs" />
     <Compile Include="Events\PlayerConnectedEvent.cs" />

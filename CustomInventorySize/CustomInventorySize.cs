@@ -9,7 +9,7 @@ namespace CustomInventorySize
     {
         public static CustomInventorySize Instance { get; private set; }
 
-        private InventoryModifier _inventoryModifier;
+        public InventoryModifier InventoryModifier;
 
         private PlayerConnectedEvent _playerConnectedEvent;
         private PlayerClothingEquippedEvent _playerClothingEquippedEvent;
@@ -19,22 +19,22 @@ namespace CustomInventorySize
         {
             Instance = this;
 
-            _inventoryModifier = new InventoryModifier(Configuration.Instance);
+            InventoryModifier = new InventoryModifier(Configuration.Instance);
 
             if (Configuration.Instance.Enabled)
             {
-                _playerConnectedEvent = new PlayerConnectedEvent(_inventoryModifier);
-                _playerClothingEquippedEvent = new PlayerClothingEquippedEvent(_inventoryModifier);
-                _playerLifeUpdatedEvent = new PlayerLifeUpdatedEvent(_inventoryModifier);
+                _playerConnectedEvent = new PlayerConnectedEvent(InventoryModifier);
+                _playerClothingEquippedEvent = new PlayerClothingEquippedEvent(InventoryModifier);
+                _playerLifeUpdatedEvent = new PlayerLifeUpdatedEvent(InventoryModifier);
             }
 
             // Set the inventory size for all connected players
             foreach (var sPlayer in Provider.clients)
             {
                 if (Configuration.Instance.Enabled)
-                    _inventoryModifier.ModifyInventory(sPlayer.playerID.steamID);
+                    InventoryModifier.ModifyInventory(sPlayer.playerID.steamID);
                 else
-                    _inventoryModifier.ResetInventorySize(sPlayer.player);
+                    InventoryModifier.ResetInventorySize(sPlayer.player);
             }
         }
 
