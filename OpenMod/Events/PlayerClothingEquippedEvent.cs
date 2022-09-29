@@ -1,15 +1,9 @@
 ﻿using CustomInventorySize.API;
 using OpenMod.API.Eventing;
-using OpenMod.Core.Helpers;
 using OpenMod.Unturned.Players.Clothing;
 using OpenMod.Unturned.Players.Clothing.Events;
 using SDG.Unturned;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using YamlDotNet.Serialization;
 
 namespace CustomInventorySize.OpenMod.Events
 {
@@ -27,25 +21,30 @@ namespace CustomInventorySize.OpenMod.Events
             if (!Plugin.Enabled)
                 return Task.CompletedTask;
 
-            switch (@event.Type)
+            // We run the logic in a task to let the handler finish. As long as the handler hasn't finished, the item is not equipped.
+            // Thus, the size is changed before and then, when equipped, the item changes the size back to normal.
+            Task.Run(() =>
             {
-                case ClothingType.Backpack:
-                    _inventoryModifier.ModifyPage(@event.Player.Player, PlayerInventory.BACKPACK);
-                    break;
+                switch (@event.Type)
+                {
+                    case ClothingType.Backpack:
+                        _inventoryModifier.ModifyPage(@event.Player.Player, PlayerInventory.BACKPACK);
+                        break;
 
-                case ClothingType.Vest:
-                    _inventoryModifier.ModifyPage(@event.Player.Player, PlayerInventory.VEST);
-                    break;
+                    case ClothingType.Vest:
+                        _inventoryModifier.ModifyPage(@event.Player.Player, PlayerInventory.VEST);
+                        break;
 
-                case ClothingType.Shirt:
-                    _inventoryModifier.ModifyPage(@event.Player.Player, PlayerInventory.SHIRT);
-                    break;
+                    case ClothingType.Shirt:
+                        _inventoryModifier.ModifyPage(@event.Player.Player, PlayerInventory.SHIRT);
+                        break;
 
-                case ClothingType.Pants:
-                    _inventoryModifier.ModifyPage(@event.Player.Player, PlayerInventory.PANTS);
-                    break;
-            }
-         
+                    case ClothingType.Pants:
+                        _inventoryModifier.ModifyPage(@event.Player.Player, PlayerInventory.PANTS);
+                        break;
+                }
+            });
+
             return Task.CompletedTask;
         }
     }

@@ -3,14 +3,11 @@ using Cysharp.Threading.Tasks;
 using OpenMod.API.Commands;
 using OpenMod.Core.Commands;
 using OpenMod.Unturned.Commands;
-using OpenMod.Unturned.Players;
 using OpenMod.Unturned.Users;
 using SDG.Unturned;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomInventorySize.OpenMod.Commands
 {

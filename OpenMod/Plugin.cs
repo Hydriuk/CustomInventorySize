@@ -1,8 +1,6 @@
 ﻿using CustomInventorySize.API;
-using CustomInventorySize.Services;
 using Cysharp.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using OpenMod.API.Plugins;
 using OpenMod.Unturned.Plugins;
 using SDG.Unturned;
@@ -19,7 +17,7 @@ namespace CustomInventorySize.OpenMod
         private readonly IInventoryModifier _inventoryModifier;
 
         public Plugin(
-            IServiceProvider serviceProvider, 
+            IServiceProvider serviceProvider,
             IConfiguration configuration,
             IInventoryModifier inventoryModifier) : base(serviceProvider)
         {
