@@ -4,7 +4,7 @@ using SDG.Unturned;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CustomInventorySize.Commands
+namespace CustomInventorySize.RocketMod.Commands
 {
     public class ResetInventorySizeCommand : IRocketCommand
     {
@@ -14,8 +14,7 @@ namespace CustomInventorySize.Commands
 
         public string Help => "Reset the inventory to its original game size";
 
-        public string Syntax => "[-all | <player>]";
-
+        public string Syntax => "[<player> | -all]";
         public List<string> Aliases => new List<string>() { "resetinvsize" };
 
         public List<string> Permissions => new List<string>() { "custominventorysize.reset", "custominventorysize.admin" };

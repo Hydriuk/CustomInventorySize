@@ -1,15 +1,18 @@
-﻿using CustomInventorySize.Events;
+﻿using CustomInventorySize.API;
+using CustomInventorySize.RocketMod.Events;
+using CustomInventorySize.RocketMod.Services;
 using CustomInventorySize.Services;
 using Rocket.Core.Plugins;
 using SDG.Unturned;
 
-namespace CustomInventorySize
+namespace CustomInventorySize.RocketMod
 {
-    public class CustomInventorySize : RocketPlugin<Configuration>
+    public class CustomInventorySize : RocketPlugin<RocketConfiguration>
     {
         public static CustomInventorySize Instance { get; private set; }
 
-        public InventoryModifier InventoryModifier;
+        public IInventoryModifier InventoryModifier;
+        private ISizesProvider _sizesProvider;
 
         private PlayerConnectedEvent _playerConnectedEvent;
         private PlayerClothingEquippedEvent _playerClothingEquippedEvent;
@@ -19,7 +22,8 @@ namespace CustomInventorySize
         {
             Instance = this;
 
-            InventoryModifier = new InventoryModifier(Configuration.Instance);
+            _sizesProvider = new SizesProvider(Configuration.Instance);
+            InventoryModifier = new InventoryModifier(_sizesProvider);
 
             if (Configuration.Instance.Enabled)
             {

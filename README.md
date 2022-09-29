@@ -38,16 +38,16 @@ This plugin updates the inventory size of the players with a rocket group based 
 
 `Pages` : You can set a size for a page. It'll be the default page size for the players belonging to the group.
 
-*Page indexes* : 
-- `0`: Primary weapon
-- `1`: Secondary weapon
-- `2`: Player's hands
-- `3`: Player's backpack
-- `4`: Player's vest
-- `5`: Player's shirt
-- `6`: Player's pants
-- `7`: <font color="darkred">[Do not use] Opened storage</font>
-- `8`: <font color="darkred">[Do not use] Nearby items</font>
+> *Page indexes* : 
+> - `0`: Primary weapon
+> - `1`: Secondary weapon
+> - `2`: Player's hands
+> - `3`: Player's backpack
+> - `4`: Player's vest
+> - `5`: Player's shirt
+> - `6`: Player's pants
+> - `7`: <font color="darkred">[Do not use] Opened storage</font>
+> - `8`: <font color="darkred">[Do not use] Nearby items</font>
 
 ## Events
 
@@ -62,3 +62,10 @@ This plugin updates the inventory size of the players with a rocket group based 
 Reloading is supported. You can enable/disable the plugin while the server is running. The inventories will be updated when the plugin loads.
 
 <font color="yellow">Note that you cannot have more than 200 items in a storage slot. For example, you cannot have more than 200 items in your backpack</font>
+
+### Attributions
+
+Icon :
+- [School bag icons created by Vitaly Gorbachev - Flaticon](https://www.flaticon.com/free-icons/school-bag)
+- [Scale icons created by Freepik - Flaticon](https://www.flaticon.com/free-icons/scale)
+- [Icon generator](https://romannurik.github.io/AndroidAssetStudio/icons-launcher.html)

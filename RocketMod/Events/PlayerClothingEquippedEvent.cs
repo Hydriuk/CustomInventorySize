@@ -1,14 +1,14 @@
-﻿using CustomInventorySize.Services;
+﻿using CustomInventorySize.API;
 using SDG.Unturned;
 using System;
 
-namespace CustomInventorySize.Events
+namespace CustomInventorySize.RocketMod.Events
 {
     public class PlayerClothingEquippedEvent : IDisposable
     {
-        private readonly InventoryModifier _inventoryModifier;
+        private readonly IInventoryModifier _inventoryModifier;
 
-        public PlayerClothingEquippedEvent(InventoryModifier inventoryModifier)
+        public PlayerClothingEquippedEvent(IInventoryModifier inventoryModifier)
         {
             _inventoryModifier = inventoryModifier;
 

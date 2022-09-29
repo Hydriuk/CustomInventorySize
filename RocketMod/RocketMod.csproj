@@ -7,7 +7,7 @@
     <ProjectGuid>{4D59AC67-536F-4D30-AD83-4BC1A84BA005}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CustomInventorySize</RootNamespace>
+    <RootNamespace>CustomInventorySize.RocketMod</RootNamespace>
     <AssemblyName>CustomInventorySize</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -29,6 +29,20 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ROCKETMOD|AnyCPU'">
+    <OutputPath>bin\ROCKETMOD\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>none</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <DocumentationFile>
+    </DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>ic_scaled_bag.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
@@ -75,17 +89,17 @@
   <ItemGroup>
     <Compile Include="Commands\ResetInventorySizeCommand.cs" />
     <Compile Include="Commands\SetInventorySizeCommand.cs" />
-    <Compile Include="Configuration.cs" />
+    <Compile Include="RocketConfiguration.cs" />
     <Compile Include="CustomInventorySize.cs" />
     <Compile Include="Events\PlayerConnectedEvent.cs" />
     <Compile Include="Events\PlayerClothingEquippedEvent.cs" />
     <Compile Include="Events\PlayerLifeUpdatedEvent.cs" />
-    <Compile Include="Models\ItemStorageSize.cs" />
-    <Compile Include="Models\PageSize.cs" />
-    <Compile Include="Models\GroupSizes.cs" />
-    <Compile Include="Models\StorageSize.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\InventoryModifier.cs" />
+    <Compile Include="Services\SizesProvider.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="ic_scaled_bag.ico" />
+  </ItemGroup>
+  <Import Project="..\CustomInventorySize\CustomInventorySize.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

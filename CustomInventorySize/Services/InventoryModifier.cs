@@ -1,6 +1,5 @@
-﻿using CustomInventorySize.Models;
-using Rocket.Core;
-using Rocket.Unturned.Player;
+﻿using CustomInventorySize.API;
+using CustomInventorySize.Models;
 using SDG.Unturned;
 using Steamworks;
 using System;
@@ -9,26 +8,26 @@ using System.Linq;
 
 namespace CustomInventorySize.Services
 {
-    public class InventoryModifier
+    public class InventoryModifier : IInventoryModifier
     {
-        private readonly Dictionary<string, GroupSizes> _groupSizesProvider;
+        private readonly ISizesProvider _sizesProvider;
 
-        public InventoryModifier(Configuration configuration)
+        public InventoryModifier(ISizesProvider sizesProvider)
         {
-            _groupSizesProvider = configuration.Groups.ToDictionary(group => group.GroupName);
+            _sizesProvider = sizesProvider;
         }
 
-        /// <summary>
-        /// Change the size of all player inventory pages to the one configured in their most prioritized group
-        /// </summary>
-        /// <param name="playerId"> Id of the player of whom to change the inventory size </param>
         public void ModifyInventory(CSteamID playerId)
         {
-            // Get the player's groups and order them by priority
-            UnturnedPlayer uPlayer = UnturnedPlayer.FromCSteamID(playerId);
-            var playerGroups = R.Permissions
-                .GetGroups(uPlayer, true)
-                .OrderBy(p => p.Priority);
+            Player player = PlayerTool.getPlayer(playerId);
+
+            ModifyInventory(player);
+        }
+
+        public void ModifyInventory(Player player)
+        {
+            // Get the player's groups ordered by priority
+            List<GroupSizes> groupSizesList = _sizesProvider.GetPrioritizedSizes(player);
 
             // byte used to keep in memory the player's inventory pages that have been modified
             // We only keep the pages that correspond to a player's inventory slot
@@ -45,17 +44,13 @@ namespace CustomInventorySize.Services
             // byte index goes from right to left
             byte modifiedPages = 0b_1000_0011;
 
-            foreach (var playerGroup in playerGroups)
+            foreach (var groupSizes in groupSizesList)
             {
-                // Pass if the group is not configured
-                if (!_groupSizesProvider.TryGetValue(playerGroup.Id, out GroupSizes groupSizes))
-                    continue;
-
                 // Bitwise complement operator to get a byte representing the pages to modify
                 byte pagesToModify = (byte)~modifiedPages;
 
                 // Update all pages with the current group configuration
-                modifiedPages |= UpdatePages(uPlayer.Player, groupSizes, pagesToModify);
+                modifiedPages |= UpdatePages(player, groupSizes, pagesToModify);
 
                 // Stop if all pages are set
                 if (modifiedPages == 0xFF)
@@ -63,25 +58,13 @@ namespace CustomInventorySize.Services
             }
         }
 
-        /// <summary>
-        /// Change the size of a single player inventory page to the one configured in their most prioritized group
-        /// </summary>
-        /// <param name="player"> Player of whom to change the page size </param>
-        /// <param name="page"> Page to change the size of </param>
         public void ModifyPage(Player player, byte page)
         {
-            // Get the player's groups and order them by priority
-            UnturnedPlayer uPlayer = UnturnedPlayer.FromPlayer(player);
-            var playerGroups = R.Permissions
-                .GetGroups(uPlayer, true)
-                .OrderBy(p => p.Priority);
+            // Get the player's groups ordered by priority
+            List<GroupSizes> groupSizesList = _sizesProvider.GetPrioritizedSizes(player);
 
-            foreach (var playerGroup in playerGroups)
+            foreach (var groupSizes in groupSizesList)
             {
-                // Pass if the group is not configured
-                if (!_groupSizesProvider.TryGetValue(playerGroup.Id, out var groupSizes))
-                    continue;
-
                 // Modifies the pages and returns the modified pages
                 byte modifiedPage = TryModifyPage(player, groupSizes, page);
 
@@ -89,6 +72,18 @@ namespace CustomInventorySize.Services
                 if (modifiedPage != 0)
                     return;
             }
+        }
+
+        public byte SendModifyPage(Player player, byte pageIndex, byte width, byte height)
+        {
+            // Update inventory size
+            player.inventory.items[pageIndex].resize(width, height);
+
+            // Drop the items that are out of bounds of the page size
+            DropExcess(player, pageIndex);
+
+            // Convert the page index to its base 2 value
+            return (byte)Math.Pow(2, pageIndex);
         }
 
         /// <summary>
@@ -100,7 +95,7 @@ namespace CustomInventorySize.Services
         /// <returns> A byte representing the indexes of the pages that have been changed </returns>
         private byte TryModifyPage(Player player, GroupSizes sizes, byte pageIndex)
         {
-            if(pageIndex == PlayerInventory.SLOTS)
+            if (pageIndex == PlayerInventory.SLOTS)
             {
                 // Get the configuration for this page
                 PageSize pageSize = sizes.Pages.FirstOrDefault(page => page.PageIndex == pageIndex);
@@ -124,7 +119,7 @@ namespace CustomInventorySize.Services
                 itemId = player.clothing.pants;
 
             // The item was removed, ignore the page
-            if(itemId == 0)
+            if (itemId == 0)
                 return (byte)Math.Pow(2, pageIndex);
 
             // Get the configuration for this item
@@ -170,26 +165,6 @@ namespace CustomInventorySize.Services
                 modifiedPages |= TryModifyPage(player, sizes, pageIndex);
             }
             return modifiedPages;
-        }
-
-        /// <summary>
-        /// Change the size of a page
-        /// </summary>
-        /// <param name="player"> Player of whom to change the page size </param>
-        /// <param name="pageIndex"> Page to change the size of </param>
-        /// <param name="width"> New width of the page </param>
-        /// <param name="height"> New height of the page </param>
-        /// <returns> A byte representing the index of the page that has been changed </returns>
-        public byte SendModifyPage(Player player, byte pageIndex, byte width, byte height)
-        {
-            // Update inventory size
-            player.inventory.items[pageIndex].resize(width, height);
-
-            // Drop the items that are out of bounds of the page size
-            DropExcess(player, pageIndex);
-
-            // Convert the page index to its base 2 value
-            return (byte)Math.Pow(2, pageIndex);
         }
 
         /// <summary>

@@ -1,15 +1,15 @@
-﻿using CustomInventorySize.Services;
+﻿using CustomInventorySize.API;
 using SDG.Unturned;
 using Steamworks;
 using System;
 
-namespace CustomInventorySize.Events
+namespace CustomInventorySize.RocketMod.Events
 {
     public class PlayerConnectedEvent : IDisposable
     {
-        private readonly InventoryModifier _inventoryModifier;
+        private readonly IInventoryModifier _inventoryModifier;
 
-        public PlayerConnectedEvent(InventoryModifier inventoryModifier)
+        public PlayerConnectedEvent(IInventoryModifier inventoryModifier)
         {
             _inventoryModifier = inventoryModifier;
 

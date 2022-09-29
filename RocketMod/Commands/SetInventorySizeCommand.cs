@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace CustomInventorySize.Commands
+namespace CustomInventorySize.RocketMod.Commands
 {
     public class SetInventorySizeCommand : IRocketCommand
     {
