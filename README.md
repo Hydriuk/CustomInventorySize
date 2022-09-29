@@ -3,25 +3,25 @@
 This plugin updates the inventory size of the players with a rocket group based configuration.
 
 ## Configuration
-
+### RocketMod
 ```xml
 <Configuration xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <!-- true : The plugin is enabled -->
   <!-- false : The plugin is disabled -->
   <Enabled>true</Enabled>
 
-  <!-- List of groups and the size of the inventory for the players belonging to the group -->
+  <!-- List of inventory size by group -->
   <Groups>
 
     <!-- Name of the rocket group -->
     <Group GroupName="default"> <!-- Set size for the rocket default group -->
 
-      <!-- List of sizes for given items -->
+      <!-- List of clothes and their new inventory size -->
       <Items>
         <ItemStorage Width="20" Height="40" ItemId="253" /> <!-- Change the alicepack size to be 20x40 for the default group -->
       </Items>
 
-      <!-- List of sizes for given pages -->
+      <!-- List of pages and their new inventory size -->
       <Pages>
         <Page Width="1" Height="1" Index="2" /> <!-- Change the hands size to be 1x1 for the default group-->
       </Pages>
@@ -30,24 +30,55 @@ This plugin updates the inventory size of the players with a rocket group based 
 
   </Groups>
 </Configuration>
-
 ```
-`Group` : This plugin uses rocket groups. You can set different items/pages sizes for different groups. The plugin uses the priority of the rocket groups to prioritize the items/pages sizes
 
-`Items` : You can set a size specific to an item. The size of the players' inventory will change when they'll equip this item. Items have priority before pages.
+### OpenMod
+```yaml
+# true: plugin is enabled
+# false: plugin is disabled
+Enabled: true
+
+# List of sizes by group
+Groups:
+
+  # Name of the openmod role
+- GroupName: default
+
+  # List of clothes and their new inventory size
+  Items:
+  - ItemId: 253
+    Width: 20
+    Height: 40
+
+  # List of pages and their new inventory size
+  # Available pages :
+  # 2 : Hands
+  # 3 : Backpack
+  # 4 : Vest
+  # 5 : Shirt
+  # 6 : Pants
+  Pages:
+  - Index: 2
+    Width: 1
+    Height: 1
+```
+
+`Groups` : This plugin uses rocketmod groups / openmod roles. You can set different items/pages sizes for different groups. The plugin uses the priority of the groups to prioritize the items/pages sizes
+
+`Items` : You can set a size specific to clothes that have an inventory. The size of the players' inventory will change when they'll equip this item. Items have priority before pages.
 
 `Pages` : You can set a size for a page. It'll be the default page size for the players belonging to the group.
 
 > *Page indexes* : 
-> - `0`: Primary weapon
-> - `1`: Secondary weapon
-> - `2`: Player's hands
-> - `3`: Player's backpack
-> - `4`: Player's vest
-> - `5`: Player's shirt
-> - `6`: Player's pants
-> - `7`: <font color="darkred">[Do not use] Opened storage</font>
-> - `8`: <font color="darkred">[Do not use] Nearby items</font>
+> - `0` : <font color="ff1021">[Do not use] Primary weapon</font>
+> - `1` : <font color="ff1021">[Do not use] Secondary weapon</font>
+> - `2` : Player's hands
+> - `3` : Player's backpack
+> - `4` : Player's vest
+> - `5` : Player's shirt
+> - `6` : Player's pants
+> - `7` : <font color="ff1021">[Do not use] Opened storage</font>
+> - `8` : <font color="ff1021">[Do not use] Nearby items</font>
 
 ## Events
 
@@ -61,7 +92,7 @@ This plugin updates the inventory size of the players with a rocket group based 
 
 Reloading is supported. You can enable/disable the plugin while the server is running. The inventories will be updated when the plugin loads.
 
-<font color="yellow">Note that you cannot have more than 200 items in a storage slot. For example, you cannot have more than 200 items in your backpack</font>
+<font color="orange">Note that you cannot have more than 200 items in a storage slot. For example, you cannot have more than 200 items in your backpack</font>
 
 ### Attributions
 

@@ -8,27 +8,10 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CustomInventorySize.RocketMod</RootNamespace>
-    <AssemblyName>CustomInventorySize</AssemblyName>
+    <AssemblyName>CustomInventorySize.RocketMod</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ROCKETMOD|AnyCPU'">
     <OutputPath>bin\ROCKETMOD\</OutputPath>
@@ -90,7 +73,7 @@
     <Compile Include="Commands\ResetInventorySizeCommand.cs" />
     <Compile Include="Commands\SetInventorySizeCommand.cs" />
     <Compile Include="RocketConfiguration.cs" />
-    <Compile Include="CustomInventorySize.cs" />
+    <Compile Include="Plugin.cs" />
     <Compile Include="Events\PlayerConnectedEvent.cs" />
     <Compile Include="Events\PlayerClothingEquippedEvent.cs" />
     <Compile Include="Events\PlayerLifeUpdatedEvent.cs" />

@@ -27,8 +27,8 @@ namespace CustomInventorySize.API
         /// Change the size of a single player inventory page to the one configured in their most prioritized group
         /// </summary>
         /// <param name="player"> Player of whom to change the page size </param>
-        /// <param name="page"> Page to change the size of </param>
-        void ModifyPage(Player player, byte page);
+        /// <param name="pageIndex"> Page to change the size of </param>
+        void ModifyPage(Player player, byte pageIndex);
 
         /// <summary>
         /// Change the size of a page

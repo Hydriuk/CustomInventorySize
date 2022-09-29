@@ -55,12 +55,12 @@ namespace CustomInventorySize.RocketMod.Commands
 
             if (pageIndex < 2 || pageIndex > 6)
             {
-                ChatManager.serverSendMessage($"Slot index must be a number bewteen 2 and 6 (included)", Color.red, toPlayer: uPlayer.SteamPlayer());
+                ChatManager.serverSendMessage($"SlotIndex must be a number bewteen 2 and 6 (included)", Color.red, toPlayer: uPlayer.SteamPlayer());
                 return;
             }
 
             foreach (var player in targets)
-                CustomInventorySize.Instance.InventoryModifier.SendModifyPage(player, pageIndex, width, height);
+                Plugin.Instance.InventoryModifier.SendModifyPage(player, pageIndex, width, height);
         }
     }
 }

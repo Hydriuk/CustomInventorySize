@@ -1,2 +1,29 @@
-# See https://openmod.github.io/openmod-docs/devdoc/concepts/configuration.html
-# You can delete this file if you do not need a configuration
+# CustomInventorySize by Hydriuk - Configuration file
+
+# true: plugin is enabled
+# false: plugin is disabled
+Enabled: true
+
+# List of sizes by group
+Groups:
+
+  # Name of the openmod role
+- GroupName: default
+
+  # List of clothes and their new inventory size
+  Items:
+  - ItemId: 253
+    Width: 20
+    Height: 40
+
+  # List of pages and their new inventory size
+  # Available pages :
+  # 2 : Hands
+  # 3 : Backpack
+  # 4 : Vest
+  # 5 : Shirt
+  # 6 : Pants
+  Pages:
+  - Index: 2
+    Width: 1
+    Height: 1

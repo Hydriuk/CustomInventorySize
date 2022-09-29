@@ -1,5 +1,9 @@
 ﻿using CustomInventorySize.API;
 using CustomInventorySize.Models;
+#if OPENMOD
+using Microsoft.Extensions.DependencyInjection;
+using OpenMod.API.Ioc;
+#endif
 using SDG.Unturned;
 using Steamworks;
 using System;
@@ -8,6 +12,9 @@ using System.Linq;
 
 namespace CustomInventorySize.Services
 {
+#if OPENMOD
+    [PluginServiceImplementation(Lifetime = ServiceLifetime.Singleton)]
+#endif
     public class InventoryModifier : IInventoryModifier
     {
         private readonly ISizesProvider _sizesProvider;
@@ -24,10 +31,10 @@ namespace CustomInventorySize.Services
             ModifyInventory(player);
         }
 
-        public void ModifyInventory(Player player)
+        public async void ModifyInventory(Player player)
         {
             // Get the player's groups ordered by priority
-            List<GroupSizes> groupSizesList = _sizesProvider.GetPrioritizedSizes(player);
+            List<GroupSizes> groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(player);
 
             // byte used to keep in memory the player's inventory pages that have been modified
             // We only keep the pages that correspond to a player's inventory slot
@@ -58,15 +65,15 @@ namespace CustomInventorySize.Services
             }
         }
 
-        public void ModifyPage(Player player, byte page)
+        public async void ModifyPage(Player player, byte pageIndex)
         {
             // Get the player's groups ordered by priority
-            List<GroupSizes> groupSizesList = _sizesProvider.GetPrioritizedSizes(player);
+            List<GroupSizes> groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(player);
 
             foreach (var groupSizes in groupSizesList)
             {
                 // Modifies the pages and returns the modified pages
-                byte modifiedPage = TryModifyPage(player, groupSizes, page);
+                byte modifiedPage = TryModifyPage(player, groupSizes, pageIndex);
 
                 // Stop if the page has been modified
                 if (modifiedPage != 0)
@@ -98,7 +105,7 @@ namespace CustomInventorySize.Services
             if (pageIndex == PlayerInventory.SLOTS)
             {
                 // Get the configuration for this page
-                PageSize pageSize = sizes.Pages.FirstOrDefault(page => page.PageIndex == pageIndex);
+                PageSize pageSize = sizes.Pages.FirstOrDefault(page => page.Index == pageIndex);
 
                 // Change the page size
                 if (pageSize != null)
@@ -133,7 +140,7 @@ namespace CustomInventorySize.Services
             else
             {
                 // Get the default configuration for this page
-                PageSize pageSize = sizes.Pages.FirstOrDefault(page => page.PageIndex == pageIndex);
+                PageSize pageSize = sizes.Pages.FirstOrDefault(page => page.Index == pageIndex);
 
                 // Change the page size
                 if (pageSize != null)

@@ -7,9 +7,9 @@ using SDG.Unturned;
 
 namespace CustomInventorySize.RocketMod
 {
-    public class CustomInventorySize : RocketPlugin<RocketConfiguration>
+    public class Plugin : RocketPlugin<RocketConfiguration>
     {
-        public static CustomInventorySize Instance { get; private set; }
+        public static Plugin Instance { get; private set; }
 
         public IInventoryModifier InventoryModifier;
         private ISizesProvider _sizesProvider;

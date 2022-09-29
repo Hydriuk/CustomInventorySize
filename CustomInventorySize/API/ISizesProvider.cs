@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using CustomInventorySize.Models;
 #if OPENMOD
 using OpenMod.API.Ioc;
@@ -18,13 +19,13 @@ namespace CustomInventorySize.API
         /// </summary>
         /// <param name="playerId"> Id of the player of whom to get groups </param>
         /// <returns> Sizes ordered by group priority </returns>
-        List<GroupSizes> GetPrioritizedSizes(CSteamID playerId);
+        Task<List<GroupSizes>> GetPrioritizedSizesAsync(CSteamID playerId);
 
         /// <summary>
         /// Get configured sizes for the player's groups
         /// </summary>
         /// <param name="player"> Player of whom to get groups </param>
         /// <returns> Sizes ordered by group priority </returns>
-        List<GroupSizes> GetPrioritizedSizes(Player playerId);
+        Task<List<GroupSizes>> GetPrioritizedSizesAsync(Player player);
     }
 }

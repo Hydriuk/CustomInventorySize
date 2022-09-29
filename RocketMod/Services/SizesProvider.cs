@@ -6,6 +6,7 @@ using SDG.Unturned;
 using Steamworks;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CustomInventorySize.RocketMod.Services
 {
@@ -23,11 +24,11 @@ namespace CustomInventorySize.RocketMod.Services
         /// </summary>
         /// <param name="playerId"> Id of the player of whom to get groups </param>
         /// <returns> Sizes ordered by group priority </returns>
-        public List<GroupSizes> GetPrioritizedSizes(CSteamID playerId)
+        public Task<List<GroupSizes>> GetPrioritizedSizesAsync(CSteamID playerId)
         {
             UnturnedPlayer uPlayer = UnturnedPlayer.FromCSteamID(playerId);
 
-            return GetPrioritizedSizes(uPlayer);
+            return Task.FromResult(GetPrioritizedSizes(uPlayer));
         }
 
         /// <summary>
@@ -35,11 +36,11 @@ namespace CustomInventorySize.RocketMod.Services
         /// </summary>
         /// <param name="player"> Player of whom to get groups </param>
         /// <returns> Sizes ordered by group priority </returns>
-        public List<GroupSizes> GetPrioritizedSizes(Player player)
+        public Task<List<GroupSizes>> GetPrioritizedSizesAsync(Player player)
         {
             UnturnedPlayer uPlayer = UnturnedPlayer.FromPlayer(player);
 
-            return GetPrioritizedSizes(uPlayer);
+            return Task.FromResult(GetPrioritizedSizes(uPlayer));
         }
 
         /// <summary>

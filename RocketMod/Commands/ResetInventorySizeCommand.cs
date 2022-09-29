@@ -38,7 +38,7 @@ namespace CustomInventorySize.RocketMod.Commands
             }
 
             foreach (var player in targets)
-                CustomInventorySize.Instance.InventoryModifier.ResetInventorySize(player);
+                Plugin.Instance.InventoryModifier.ResetInventorySize(player);
         }
     }
 }

@@ -14,10 +14,12 @@
     <Version>0.1.0</Version>
     <InformationalVersion>0.1.0</InformationalVersion>
     <PackageVersion>0.1.0</PackageVersion>
-    <Configurations>Debug;Release;OPENMOD</Configurations>
+    <Configurations>OPENMOD</Configurations>
     <ApplicationIcon>ic_scaled_bag.ico</ApplicationIcon>
     <PackageIcon>ic_scaled_bag.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <AssemblyName>CustomInventorySize.OpenMod</AssemblyName>
+    <Title>$(AssemblyName)</Title>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -50,7 +52,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="config.yaml" />
-    <EmbeddedResource Include="translations.yaml" />
   </ItemGroup>
 
   <ItemGroup>
