@@ -36,33 +36,38 @@ namespace CustomInventorySize.Services
             // Get the player's groups ordered by priority
             List<GroupSizes> groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(player);
 
-            // byte used to keep in memory the player's inventory pages that have been modified
-            // We only keep the pages that correspond to a player's inventory slot
-            // Pages are :
-            // 0: Primary weapon slot
-            // 1: Secondary weapon slot
-            // 2: Player's hands
-            // 3: Player's backpack
-            // 4: Player's vest
-            // 5: Player's shirt
-            // 6: Player's pants
-            // 7: Opened storage
-            // 8: Nearby items
-            // byte index goes from right to left
-            byte modifiedPages = 0b_1000_0011;
+            EPage modifiedPages = EPage.None;
+
+            // Preset empty clothes
+            if (player.clothing.backpack == 0) modifiedPages |= EPage.Backpack;
+            if (player.clothing.vest     == 0) modifiedPages |= EPage.Vest;
+            if (player.clothing.shirt    == 0) modifiedPages |= EPage.Shirt;
+            if (player.clothing.pants    == 0) modifiedPages |= EPage.Pants;
 
             foreach (var groupSizes in groupSizesList)
             {
-                // Bitwise complement operator to get a byte representing the pages to modify
-                byte pagesToModify = (byte)~modifiedPages;
+                // Get inventory pages that need to be modified
+                EPage pagesToModify = modifiedPages ^ EPage.Inventory;
 
                 // Update all pages with the current group configuration
                 modifiedPages |= UpdatePages(player, groupSizes, pagesToModify);
 
                 // Stop if all pages are set
-                if (modifiedPages == 0xFF)
+                if (modifiedPages == EPage.Inventory)
                     break;
             }
+
+            // Reset pages that were not modified
+            if ((EPage.Hands ^ modifiedPages) == EPage.Hands)
+                ResetHands(player);
+            if ((EPage.Backpack ^ modifiedPages) == EPage.Backpack)
+                ResetBackpack(player);
+            if ((EPage.Vest ^ modifiedPages) == EPage.Vest)
+                ResetVest(player);
+            if ((EPage.Shirt ^ modifiedPages) == EPage.Shirt)
+                ResetShirt(player);
+            if ((EPage.Pants ^ modifiedPages) == EPage.Pants)
+                ResetPants(player);
         }
 
         public async void ModifyPage(Player player, byte pageIndex)
@@ -73,15 +78,15 @@ namespace CustomInventorySize.Services
             foreach (var groupSizes in groupSizesList)
             {
                 // Modifies the pages and returns the modified pages
-                byte modifiedPage = TryModifyPage(player, groupSizes, pageIndex);
+                EPage modifiedPage = TryModifyPage(player, groupSizes, pageIndex);
 
                 // Stop if the page has been modified
-                if (modifiedPage != 0)
+                if (modifiedPage != EPage.None)
                     return;
             }
         }
 
-        public byte SendModifyPage(Player player, byte pageIndex, byte width, byte height)
+        public EPage SendModifyPage(Player player, byte pageIndex, byte width, byte height)
         {
             // Update inventory size
             player.inventory.items[pageIndex].resize(width, height);
@@ -89,8 +94,8 @@ namespace CustomInventorySize.Services
             // Drop the items that are out of bounds of the page size
             DropExcess(player, pageIndex);
 
-            // Convert the page index to its base 2 value
-            return (byte)Math.Pow(2, pageIndex);
+            // Convert the page index to EPage
+            return (EPage)(1 << pageIndex);
         }
 
         /// <summary>
@@ -100,7 +105,7 @@ namespace CustomInventorySize.Services
         /// <param name="sizes"> Group configuration to use to change the page size </param>
         /// <param name="pageIndex"> Page to change the size of </param>
         /// <returns> A byte representing the indexes of the pages that have been changed </returns>
-        private byte TryModifyPage(Player player, GroupSizes sizes, byte pageIndex)
+        private EPage TryModifyPage(Player player, GroupSizes sizes, byte pageIndex)
         {
             if (pageIndex == PlayerInventory.SLOTS)
             {
@@ -127,7 +132,7 @@ namespace CustomInventorySize.Services
 
             // The item was removed, ignore the page
             if (itemId == 0)
-                return (byte)Math.Pow(2, pageIndex);
+                return (EPage)(1 << pageIndex);
 
             // Get the configuration for this item
             ItemStorageSize itemSize = sizes.Items.FirstOrDefault(item => item.ItemId == itemId);
@@ -157,20 +162,24 @@ namespace CustomInventorySize.Services
         /// <param name="sizes"> Group configuration to use to change the page size </param>
         /// <param name="pagesToModify"> A byte representing the indexes of the pages that need to be changed </param>
         /// <returns> A byte representing the indexes of the pages that have been changed </returns>
-        private byte UpdatePages(Player player, GroupSizes sizes, byte pagesToModify)
+        private EPage UpdatePages(Player player, GroupSizes sizes, EPage pagesToModify)
         {
-            byte modifiedPages = 0;
+            EPage modifiedPages = 0;
 
             // Loop through player inventory slots only
             for (byte pageIndex = PlayerInventory.SLOTS; pageIndex < PlayerInventory.PAGES - 2; pageIndex++)
             {
+                EPage currentPage = (EPage)(1 << pageIndex);
+
                 // Pass if current page should not be modified
-                if (((byte)Math.Pow(2, pageIndex) & pagesToModify) == 0)
+                // In other word, is currentPage in pagesToModify ?
+                if ((currentPage & pagesToModify) != currentPage)
                     continue;
 
                 // Change the page size and update the modifiedPages byte
                 modifiedPages |= TryModifyPage(player, sizes, pageIndex);
             }
+
             return modifiedPages;
         }
 
@@ -199,36 +208,44 @@ namespace CustomInventorySize.Services
         public void ResetInventorySize(Player player)
         {
             // Reset Hands
-            player.inventory.items[PlayerInventory.SLOTS].resize(5, 3);
+            ResetHands(player);
             DropExcess(player, 2);
 
             // Reset backpack
             if (player.clothing.backpack != 0)
             {
-                player.inventory.items[PlayerInventory.BACKPACK].resize(player.clothing.backpackAsset.width, player.clothing.backpackAsset.height);
+                ResetBackpack(player);
                 DropExcess(player, PlayerInventory.BACKPACK);
             }
 
             // Reset vest
             if (player.clothing.vest != 0)
             {
-                player.inventory.items[PlayerInventory.VEST].resize(player.clothing.vestAsset.width, player.clothing.vestAsset.height);
+                ResetVest(player);
                 DropExcess(player, PlayerInventory.VEST);
             }
 
             // Reset shirt
             if (player.clothing.shirt != 0)
             {
-                player.inventory.items[PlayerInventory.SHIRT].resize(player.clothing.shirtAsset.width, player.clothing.shirtAsset.height);
+                ResetShirt(player);
                 DropExcess(player, PlayerInventory.SHIRT);
             }
 
             // Reset pants
             if (player.clothing.pants != 0)
             {
-                player.inventory.items[PlayerInventory.PANTS].resize(player.clothing.pantsAsset.width, player.clothing.pantsAsset.height);
+                ResetPants(player);
                 DropExcess(player, PlayerInventory.PANTS);
             }
         }
+
+        private void ResetHands(Player player) => player.inventory.items[PlayerInventory.SLOTS].resize(5, 3);
+        private void ResetBackpack(Player player) => player.inventory.items[PlayerInventory.BACKPACK].resize(player.clothing.backpackAsset.width, player.clothing.backpackAsset.height);
+        private void ResetVest(Player player) => player.inventory.items[PlayerInventory.VEST].resize(player.clothing.vestAsset.width, player.clothing.vestAsset.height);
+        private void ResetShirt(Player player) => player.inventory.items[PlayerInventory.SHIRT].resize(player.clothing.shirtAsset.width, player.clothing.shirtAsset.height);
+        private void ResetPants(Player player) => player.inventory.items[PlayerInventory.PANTS].resize(player.clothing.pantsAsset.width, player.clothing.pantsAsset.height);
+
+
     }
 }

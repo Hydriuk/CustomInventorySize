@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)API\ISizesProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Configuration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\GroupSizes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\EPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ItemStorageSize.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\PageSize.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\StorageSize.cs" />

@@ -1,4 +1,5 @@
-﻿#if OPENMOD
+﻿using CustomInventorySize.Models;
+#if OPENMOD
 using OpenMod.API.Ioc;
 #endif
 using SDG.Unturned;
@@ -38,7 +39,7 @@ namespace CustomInventorySize.API
         /// <param name="width"> New width of the page </param>
         /// <param name="height"> New height of the page </param>
         /// <returns> A byte representing the index of the page that has been changed </returns>
-        byte SendModifyPage(Player player, byte pageIndex, byte width, byte height);
+        EPage SendModifyPage(Player player, byte pageIndex, byte width, byte height);
 
         /// <summary>
         /// Reset all player inventory pages to their original game size
