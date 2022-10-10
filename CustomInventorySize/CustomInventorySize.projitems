@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)API\IInventoryModifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)API\ISizesProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)API\IThreadManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Configuration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\GroupSizes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\EPage.cs" />

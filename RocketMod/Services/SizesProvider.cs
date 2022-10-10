@@ -12,7 +12,7 @@ namespace CustomInventorySize.RocketMod.Services
 {
     public class SizesProvider : ISizesProvider
     {
-        private readonly Dictionary<string, GroupSizes> _groupSizesProvider;
+        private Dictionary<string, GroupSizes> _groupSizesProvider;
 
         public SizesProvider(RocketConfiguration configuration)
         {

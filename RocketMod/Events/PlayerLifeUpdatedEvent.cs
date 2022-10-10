@@ -8,6 +8,8 @@ namespace CustomInventorySize.RocketMod.Events
     {
         private readonly IInventoryModifier _inventoryModifier;
 
+        private readonly bool _enabled = Plugin.Instance.Configuration.Instance.Enabled;
+
         public PlayerLifeUpdatedEvent(IInventoryModifier inventoryModifier)
         {
             _inventoryModifier = inventoryModifier;
@@ -20,6 +22,10 @@ namespace CustomInventorySize.RocketMod.Events
             PlayerLife.onPlayerLifeUpdated -= OnPlayerLifeUpdated;
         }
 
-        private void OnPlayerLifeUpdated(Player player) => _inventoryModifier.ModifyPage(player, PlayerInventory.SLOTS);
+        private void OnPlayerLifeUpdated(Player player)
+        {
+            if (_enabled)
+                _inventoryModifier.ModifyPage(player, PlayerInventory.SLOTS);
+        }
     }
 }

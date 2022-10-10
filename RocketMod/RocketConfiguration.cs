@@ -2,6 +2,7 @@
 using Rocket.API;
 using SDG.Unturned;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace CustomInventorySize.RocketMod
 {
@@ -20,7 +21,7 @@ namespace CustomInventorySize.RocketMod
                     },
                     Items = new List<ItemStorageSize>()
                     {
-                        new ItemStorageSize(253, 20, 40)
+                        new ItemStorageSize(253, 10, 12)
                     }
                 }
             };

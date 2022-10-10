@@ -28,6 +28,10 @@
     <ApplicationIcon>ic_scaled_bag.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lib.Harmony.2.2.2\lib\net48\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Unturned\Unturned_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
@@ -72,6 +76,7 @@
   <ItemGroup>
     <Compile Include="Commands\ResetInventorySizeCommand.cs" />
     <Compile Include="Commands\SetInventorySizeCommand.cs" />
+    <Compile Include="Events\PlayerOpenedStorageEvent.cs" />
     <Compile Include="RocketConfiguration.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Events\PlayerConnectedEvent.cs" />
@@ -79,9 +84,13 @@
     <Compile Include="Events\PlayerLifeUpdatedEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\SizesProvider.cs" />
+    <Compile Include="Services\ThreadManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ic_scaled_bag.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="..\CustomInventorySize\CustomInventorySize.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

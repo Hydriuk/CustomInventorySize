@@ -8,6 +8,8 @@ namespace CustomInventorySize.RocketMod.Events
     {
         private readonly IInventoryModifier _inventoryModifier;
 
+        private readonly bool _enabled = Plugin.Instance.Configuration.Instance.Enabled;
+
         public PlayerClothingEquippedEvent(IInventoryModifier inventoryModifier)
         {
             _inventoryModifier = inventoryModifier;
@@ -26,12 +28,28 @@ namespace CustomInventorySize.RocketMod.Events
             PlayerClothing.OnPantsChanged_Global -= OnPantsChanged;
         }
 
-        private void OnBackpackChanged(PlayerClothing clothing) => _inventoryModifier.ModifyPage(clothing.player, PlayerInventory.BACKPACK);
+        private void OnBackpackChanged(PlayerClothing clothing)
+        {
+            if (_enabled)
+                _inventoryModifier.ModifyPage(clothing.player, PlayerInventory.BACKPACK); 
+        }
 
-        private void OnVestChanged(PlayerClothing clothing) => _inventoryModifier.ModifyPage(clothing.player, PlayerInventory.VEST);
+        private void OnVestChanged(PlayerClothing clothing)
+        {
+            if (_enabled)
+                _inventoryModifier.ModifyPage(clothing.player, PlayerInventory.VEST); 
+        }
 
-        private void OnShirtChanged(PlayerClothing clothing) => _inventoryModifier.ModifyPage(clothing.player, PlayerInventory.SHIRT);
+        private void OnShirtChanged(PlayerClothing clothing)
+        {
+            if (_enabled)
+                _inventoryModifier.ModifyPage(clothing.player, PlayerInventory.SHIRT);
+        }
 
-        private void OnPantsChanged(PlayerClothing clothing) => _inventoryModifier.ModifyPage(clothing.player, PlayerInventory.PANTS);
+        private void OnPantsChanged(PlayerClothing clothing)
+        {
+            if (_enabled)
+                _inventoryModifier.ModifyPage(clothing.player, PlayerInventory.PANTS);
+        }
     }
 }

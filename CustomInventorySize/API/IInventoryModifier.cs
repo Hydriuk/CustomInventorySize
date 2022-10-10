@@ -15,12 +15,6 @@ namespace CustomInventorySize.API
         /// <summary>
         /// Change the size of all player inventory pages to the one configured in their most prioritized group
         /// </summary>
-        /// <param name="playerId"> Id of the player of whom to change the inventory size </param>
-        void ModifyInventory(CSteamID playerId);
-
-        /// <summary>
-        /// Change the size of all player inventory pages to the one configured in their most prioritized group
-        /// </summary>
         /// <param name="player"> Player of whom to change the inventory size </param>
         void ModifyInventory(Player player);
 
@@ -46,5 +40,11 @@ namespace CustomInventorySize.API
         /// </summary>
         /// <param name="player"> Player of whom to reset the inventory </param>
         void ResetInventorySize(Player player);
+
+        /// <summary>
+        /// Reset opened storage size
+        /// </summary>
+        /// <param name="player"></param>
+        void ResetStorage(Player player);
     }
 }
