@@ -55,7 +55,7 @@ namespace CustomInventorySize.OpenMod.Commands
                 throw new UserFriendlyException("SlotIndex must be a number bewteen 2 and 6 (included)");
 
             foreach (var player in targets)
-                _inventoryModifier.SendModifyPage(player, pageIndex, width, height);
+                _inventoryModifier.ModifyPage(player, pageIndex, width, height);
 
             return UniTask.CompletedTask;
         }

@@ -17,7 +17,7 @@ namespace CustomInventorySize.OpenMod.Events
         public Task HandleEventAsync(object? sender, UnturnedPlayerConnectedEvent @event)
         {
             if (Plugin.Enabled)
-                _inventoryModifier.ModifyInventory(@event.Player.Player);
+                _inventoryModifier.ModifyInventoryByRoles(@event.Player.Player);
             else
                 _inventoryModifier.ResetInventorySize(@event.Player.Player);
 

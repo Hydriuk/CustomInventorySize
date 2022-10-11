@@ -28,7 +28,7 @@ namespace CustomInventorySize.RocketMod.Events
             Player player = PlayerTool.getPlayer(playerId);
 
             if (_enabled)
-                _inventoryModifier.ModifyInventory(player);
+                _inventoryModifier.ModifyInventoryByRoles(player);
             else
                 _inventoryModifier.ResetInventorySize(player);
 

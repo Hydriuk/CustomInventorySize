@@ -8,6 +8,7 @@ using SDG.Unturned;
 using Steamworks;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace CustomInventorySize.Services
 {
@@ -17,15 +18,17 @@ namespace CustomInventorySize.Services
     public class InventoryModifier : IInventoryModifier
     {
         private readonly ISizesProvider _sizesProvider;
-        private readonly IThreadManager _threadManager;
+        private readonly IThreadAdapter _threads;
+        private readonly IChatMessenger _chatMessenger;
 
-        public InventoryModifier(ISizesProvider sizesProvider, IThreadManager threadManager)
+        public InventoryModifier(ISizesProvider sizesProvider, IThreadAdapter threads, IChatMessenger chatMessenger)
         {
             _sizesProvider = sizesProvider;
-            _threadManager = threadManager;
+            _threads = threads;
+            _chatMessenger = chatMessenger;
         }
 
-        public async void ModifyInventory(Player player)
+        public async void ModifyInventoryByRoles(Player player)
         {
             // Get the player's groups ordered by priority
             List<GroupSizes> groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(player);
@@ -45,27 +48,33 @@ namespace CustomInventorySize.Services
                 EPage pagesToModify = modifiedPages ^ (EPage.Inventory | EPage.Storage);
 
                 // Update all pages with the current group configuration
-                modifiedPages |= UpdatePages(player, groupSizes, pagesToModify);
+                modifiedPages |= ModifyPagesByRole(player, groupSizes, pagesToModify);
 
                 // Stop if all pages are set
                 if (modifiedPages == (EPage.Inventory | EPage.Storage))
                     break;
             }
 
+            bool itemDropped = false;
             // Reset pages that were not modified
-            if ((EPage.Hands ^ modifiedPages) == EPage.Hands)
-                ResetHands(player);
-            if ((EPage.Backpack ^ modifiedPages) == EPage.Backpack)
-                ResetBackpack(player);
-            if ((EPage.Vest ^ modifiedPages) == EPage.Vest)
-                ResetVest(player);
-            if ((EPage.Shirt ^ modifiedPages) == EPage.Shirt)
-                ResetShirt(player);
-            if ((EPage.Pants ^ modifiedPages) == EPage.Pants)
-                ResetPants(player);
+            if ((EPage.Hands & modifiedPages) != EPage.Hands)
+                itemDropped |= ResetHands(player);
+            if ((EPage.Backpack & modifiedPages) != EPage.Backpack)
+                itemDropped |= ResetBackpack(player);
+            if ((EPage.Vest & modifiedPages) != EPage.Vest)
+                itemDropped |= ResetVest(player);
+            if ((EPage.Shirt & modifiedPages) != EPage.Shirt)
+                itemDropped |= ResetShirt(player);
+            if ((EPage.Pants & modifiedPages) != EPage.Pants)
+                itemDropped |= ResetPants(player);
+            if ((EPage.Storage & modifiedPages) != EPage.Storage)
+                ResetStorage(player);
+
+            if (itemDropped)
+                _chatMessenger.WarnInventoryItemDropped(player);
         }
 
-        public async void ModifyPage(Player player, byte pageIndex)
+        public async void ModifyPageByRoles(Player player, byte pageIndex)
         {
             // Get the player's groups ordered by priority
             List<GroupSizes> groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(player);
@@ -73,7 +82,7 @@ namespace CustomInventorySize.Services
             foreach (var groupSizes in groupSizesList)
             {
                 // Modifies the pages and returns the modified pages
-                EPage modifiedPage = TryModifyPage(player, groupSizes, pageIndex);
+                EPage modifiedPage = ModifyPageByRole(player, groupSizes, pageIndex);
 
                 // Stop if the page has been modified
                 if (modifiedPage != EPage.None)
@@ -84,26 +93,31 @@ namespace CustomInventorySize.Services
                 ResetStorage(player);
         }
 
-        public EPage SendModifyPage(Player player, byte pageIndex, byte width, byte height)
+        public EPage ModifyPage(Player player, byte pageIndex, byte width, byte height)
         {
-            // Update inventory size
-            player.inventory.items[pageIndex].resize(width, height);
-
             // Drop the items that are out of bounds of the page size
-            DropExcess(player, pageIndex, width, height);
+            bool itemDropped = DropExcess(player, pageIndex, width, height);
+
+            // Update inventory size
+            _threads.RunOnMainThread(() => player.inventory.items[pageIndex].resize(width, height));
+
+            if (itemDropped && pageIndex == PlayerInventory.STORAGE)
+                _chatMessenger.WarnStorageItemDropped(player);
+            else if (itemDropped)
+                _chatMessenger.WarnInventoryItemDropped(player);
 
             // Convert the page index to EPage
             return (EPage)(1 << pageIndex);
         }
 
         /// <summary>
-        /// Tries to change the size of a page
+        /// Change the size of a page under a role configuration
         /// </summary>
         /// <param name="player"> Player of whom to change the page size </param>
         /// <param name="sizes"> Group configuration to use to change the page size </param>
         /// <param name="pageIndex"> Page to change the size of </param>
         /// <returns> A byte representing the indexes of the pages that have been changed </returns>
-        private EPage TryModifyPage(Player player, GroupSizes sizes, byte pageIndex)
+        private EPage ModifyPageByRole(Player player, GroupSizes sizes, byte pageIndex)
         {
             if (pageIndex == PlayerInventory.SLOTS)
             {
@@ -112,7 +126,7 @@ namespace CustomInventorySize.Services
 
                 // Change the page size
                 if (pageSize != null)
-                    return SendModifyPage(player, pageIndex, pageSize.Width, pageSize.Height);
+                    return ModifyPage(player, pageIndex, pageSize.Width, pageSize.Height);
 
                 return 0;
             }
@@ -143,7 +157,7 @@ namespace CustomInventorySize.Services
             if (itemSize != null)
             {
                 // Change the page size
-                return SendModifyPage(player, pageIndex, itemSize.Width, itemSize.Height);
+                return ModifyPage(player, pageIndex, itemSize.Width, itemSize.Height);
             }
             else
             {
@@ -152,20 +166,20 @@ namespace CustomInventorySize.Services
 
                 // Change the page size
                 if (pageSize != null)
-                    return SendModifyPage(player, pageIndex, pageSize.Width, pageSize.Height);
+                    return ModifyPage(player, pageIndex, pageSize.Width, pageSize.Height);
             }
 
             return EPage.None;
         }
 
         /// <summary>
-        /// Change the size of all inventory pages of a player
+        /// Change the size of some pages under a role configuration
         /// </summary>
         /// <param name="player"> Player of whom to change the page size </param>
         /// <param name="sizes"> Group configuration to use to change the page size </param>
         /// <param name="pagesToModify"> A byte representing the indexes of the pages that need to be changed </param>
         /// <returns> A byte representing the indexes of the pages that have been changed </returns>
-        private EPage UpdatePages(Player player, GroupSizes sizes, EPage pagesToModify)
+        private EPage ModifyPagesByRole(Player player, GroupSizes sizes, EPage pagesToModify)
         {
             EPage modifiedPages = 0;
 
@@ -180,7 +194,7 @@ namespace CustomInventorySize.Services
                     continue;
 
                 // Change the page size and update the modifiedPages byte
-                modifiedPages |= TryModifyPage(player, sizes, pageIndex);
+                modifiedPages |= ModifyPageByRole(player, sizes, pageIndex);
             }
 
             return modifiedPages;
@@ -191,41 +205,79 @@ namespace CustomInventorySize.Services
         /// </summary>
         /// <param name="player"> Player of whom to drop the excess items of </param>
         /// <param name="pageIndex"> Page of which to drop the items from </param>
-        private void DropExcess(Player player, byte pageIndex, byte width, byte height)
+        /// <param name="width"> Width bound </param>
+        /// <param name="height"> Height bound </param>
+        /// <returns> True if at least one item was dropped </returns>
+        private bool DropExcess(Player player, byte pageIndex, byte width, byte height)
         {
             if (pageIndex == PlayerInventory.STORAGE)
-                DropExcessStorage(player, width, height);
+                return DropExcessStorage(player, width, height);
             else
-                DropExcessInventory(player, pageIndex, width, height);
+                return DropExcessInventory(player, pageIndex, width, height);
         }
 
-        private void DropExcessInventory(Player player, byte pageIndex, byte width, byte height)
+        /// <summary>
+        /// Drop the items that are out of bounds of the inventory page size
+        /// </summary>
+        /// <param name="player"> Player of whom to drop the excess items of </param>
+        /// <param name="pageIndex"> Page of which to drop the items from </param>
+        /// <param name="width"> Width bound </param>
+        /// <param name="height"> Height bound </param>
+        /// <returns> True if at least one item was dropped </returns>
+        private bool DropExcessInventory(Player player, byte pageIndex, byte width, byte height)
         {
+            bool itemDropped = false;
+
             // Drop items that exceed the inventory space
             foreach (var item in player.inventory.items[pageIndex].items)
             {
-                if (item.x + item.size_x > width || item.y + item.size_y > height)
+                bool rotated = item.rot % 2 == 0;
+                byte size_x =  rotated ? item.size_x : item.size_y;
+                byte size_y = !rotated ? item.size_x : item.size_y;
+
+                if (item.x + size_x > width || item.y + size_y > height)
+                {
                     player.inventory.sendDropItem(pageIndex, item.x, item.y);
+                    itemDropped |= true;
+                }
             }
+
+            return itemDropped;
         }
 
-        private void DropExcessStorage(Player player, byte width, byte height)
+        /// <summary>
+        /// Drop the items that are out of bounds of the storage page size
+        /// </summary>
+        /// <param name="player"> Player of whom to drop the excess items of </param>
+        /// <param name="width"> Width bound </param>
+        /// <param name="height"> Height bound </param>
+        /// <returns> True if at least one item was dropped </returns>
+        private bool DropExcessStorage(Player player, byte width, byte height)
         {
+            bool itemDropped = false;
             List<ItemJar> items = new List<ItemJar>();
+
             // Drop items that exceed the inventory space
             foreach (var item in player.inventory.storage.items.items)
             {
-                if (!(item.x + item.size_x > width || item.y + item.size_y > height))
+                bool rotated = item.rot % 2 == 0;
+                byte size_x = rotated ? item.size_x : item.size_y;
+                byte size_y = !rotated ? item.size_x : item.size_y;
+
+                // ItemJar size takes rotation into account
+                if (!(item.x + size_x > width || item.y + size_y > height))
                     continue;
 
                 // Drop item on floor
                 ItemManager.dropItem(item.item, player.transform.position + player.transform.forward * 0.5f, true, true, false);
 
                 items.Add(item);
+
+                itemDropped |= true;
             }
 
             // Remove dropped items from the storage
-            _threadManager.RunOnMainThread(() =>
+            _threads.RunOnMainThread(() =>
             {
                 foreach (var item in items)
                 {
@@ -234,6 +286,54 @@ namespace CustomInventorySize.Services
                     player.inventory.removeItem(PlayerInventory.STORAGE, index);
                 }
             });
+
+            return itemDropped;
+        }
+
+        /// <summary>
+        /// Resets a page size
+        /// </summary>
+        /// <param name="player"> Player of whom to reset the page </param>
+        /// <param name="pageIndex"> Index of the page to reset </param>
+        private bool ResetPage(Player player, EPage page)
+        {
+            bool itemDropped = false;
+            switch (page)
+            {
+                case EPage.Hands:
+                    itemDropped = ResetHands(player);
+                    break;
+
+                case EPage.Backpack:
+                    if (player.clothing.backpack != 0)
+                        itemDropped = ResetBackpack(player);
+                    break;
+
+                case EPage.Vest:
+                    if (player.clothing.vest != 0)
+                        itemDropped = ResetVest(player);
+                    break;
+
+                case EPage.Shirt:
+                    if (player.clothing.shirt != 0)
+                        itemDropped = ResetShirt(player);
+                    break;
+
+                case EPage.Pants:
+                    if (player.clothing.pants != 0)
+                        itemDropped = ResetPants(player);
+                    break;
+
+                case EPage.Storage:
+                    if (player.inventory.isStoring)
+                        ResetStorage(player);
+                    break;
+
+                default:
+                    break;
+            }
+
+            return itemDropped;
         }
 
         /// <summary>
@@ -242,80 +342,130 @@ namespace CustomInventorySize.Services
         /// <param name="player"> Player of whom to reset the inventory </param>
         public void ResetInventorySize(Player player)
         {
+            bool itemDropped = false;
+
             // Reset Hands
-            ResetHands(player);
+            itemDropped |= ResetHands(player);
 
             // Reset backpack
             if (player.clothing.backpack != 0)
-                ResetBackpack(player);
+                itemDropped |= ResetBackpack(player);
 
             // Reset vest
             if (player.clothing.vest != 0)
-                ResetVest(player);
+                itemDropped |= ResetVest(player);
 
             // Reset shirt
             if (player.clothing.shirt != 0)
-                ResetShirt(player);
+                itemDropped |= ResetShirt(player);
 
             // Reset pants
             if (player.clothing.pants != 0)
-                ResetPants(player);
+                itemDropped |= ResetPants(player);
 
             // Reset opened storage
             if (player.inventory.isStoring)
                 ResetStorage(player);
+
+            if (itemDropped)
+                _chatMessenger.WarnInventoryItemDropped(player);
         }
 
+        /// <summary>
+        /// Reset the player's storage page
+        /// </summary>
+        /// <param name="player"> Player of whom to reset storage page </param>
         public void ResetStorage(Player player)
         {
             BarricadeDrop barricade = BarricadeManager.FindBarricadeByRootTransform(player.inventory.storage.transform);
             ItemStorageAsset asset = (ItemStorageAsset)barricade.asset;
 
-            DropExcessStorage(player, asset.storage_x, asset.storage_y);
+            bool itemDropped = DropExcessStorage(player, asset.storage_x, asset.storage_y);
 
-            _threadManager.RunOnMainThread(() => player.inventory.items[PlayerInventory.STORAGE].resize(asset.storage_x, asset.storage_y));
+            _threads.RunOnMainThread(() => player.inventory.items[PlayerInventory.STORAGE].resize(asset.storage_x, asset.storage_y));
+
+            if (itemDropped)
+                _chatMessenger.WarnStorageItemDropped(player);
         }
 
-        private void ResetHands(Player player)
+        /// <summary>
+        /// Reset the player's hands page
+        /// </summary>
+        /// <param name="player"> Player of whom to reset hands page </param>
+        private bool ResetHands(Player player)
         {
-            DropExcessInventory(player, PlayerInventory.SLOTS, 5, 3);
-            player.inventory.items[PlayerInventory.SLOTS].resize(5, 3);
+            bool itemDropped = DropExcessInventory(player, PlayerInventory.SLOTS, 5, 3);
+            _threads.RunOnMainThread(() => player.inventory.items[PlayerInventory.SLOTS].resize(5, 3));
+
+            return itemDropped;
         }
 
-        private void ResetBackpack(Player player)
+        /// <summary>
+        /// Reset the player's backpack page
+        /// </summary>
+        /// <param name="player"> Player of whom to reset backpack page </param>
+        private bool ResetBackpack(Player player)
         {
             byte width = player.clothing.backpackAsset.width;
             byte height = player.clothing.backpackAsset.height;
 
-            DropExcessInventory(player, PlayerInventory.BACKPACK, width, height);
-            player.inventory.items[PlayerInventory.BACKPACK].resize(player.clothing.backpackAsset.width, player.clothing.backpackAsset.height);
+            bool itemDropped = DropExcessInventory(player, PlayerInventory.BACKPACK, width, height);
+            _threads.RunOnMainThread(
+                () => player.inventory.items[PlayerInventory.BACKPACK].resize(player.clothing.backpackAsset.width, player.clothing.backpackAsset.height)
+            );
+
+            return itemDropped;
         }
 
-        private void ResetVest(Player player)
+        /// <summary>
+        /// Reset the player's vest page
+        /// </summary>
+        /// <param name="player"> Player of whom to reset vest page </param>
+        private bool ResetVest(Player player)
         {
             byte width = player.clothing.vestAsset.width;
             byte height = player.clothing.vestAsset.height;
 
-            DropExcessInventory(player, PlayerInventory.VEST, width, height);
-            player.inventory.items[PlayerInventory.VEST].resize(player.clothing.vestAsset.width, player.clothing.vestAsset.height);
+            bool itemDropped = DropExcessInventory(player, PlayerInventory.VEST, width, height);
+            _threads.RunOnMainThread(() =>
+                player.inventory.items[PlayerInventory.VEST].resize(player.clothing.vestAsset.width, player.clothing.vestAsset.height)
+            );
+
+            return itemDropped;
         }
 
-        private void ResetShirt(Player player)
+        /// <summary>
+        /// Reset the player's shirt page
+        /// </summary>
+        /// <param name="player"> Player of whom to reset shirt page </param>
+        private bool ResetShirt(Player player)
         {
             byte width = player.clothing.shirtAsset.width;
             byte height = player.clothing.shirtAsset.height;
 
-            DropExcessInventory(player, PlayerInventory.SHIRT, width, height);
-            player.inventory.items[PlayerInventory.SHIRT].resize(player.clothing.shirtAsset.width, player.clothing.shirtAsset.height);
+            bool itemDropped = DropExcessInventory(player, PlayerInventory.SHIRT, width, height);
+            _threads.RunOnMainThread(() =>
+                player.inventory.items[PlayerInventory.SHIRT].resize(player.clothing.shirtAsset.width, player.clothing.shirtAsset.height)
+            );
+
+            return itemDropped;
         }
 
-        private void ResetPants(Player player)
+        /// <summary>
+        /// Reset the player's pants page
+        /// </summary>
+        /// <param name="player"> Player of whom to reset pants page </param>
+        private bool ResetPants(Player player)
         {
             byte width = player.clothing.pantsAsset.width;
             byte height = player.clothing.pantsAsset.height;
 
-            DropExcessInventory(player, PlayerInventory.PANTS, width, height);
-            player.inventory.items[PlayerInventory.PANTS].resize(player.clothing.pantsAsset.width, player.clothing.pantsAsset.height);
+            bool itemDropped = DropExcessInventory(player, PlayerInventory.PANTS, width, height);
+            _threads.RunOnMainThread(() =>
+                player.inventory.items[PlayerInventory.PANTS].resize(player.clothing.pantsAsset.width, player.clothing.pantsAsset.height)
+            );
+
+            return itemDropped;
         }
     }
 }

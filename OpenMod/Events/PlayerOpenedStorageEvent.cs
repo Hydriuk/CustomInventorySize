@@ -24,7 +24,7 @@ namespace CustomInventorySize.OpenMod.Events
         public Task HandleEventAsync(object? sender, UnturnedPlayerOpenedStorageEvent @event)
         {
             if (Plugin.Enabled)
-                _inventoryModifier.ModifyPage(@event.Player.Player, PlayerInventory.STORAGE);
+                _inventoryModifier.ModifyPageByRoles(@event.Player.Player, PlayerInventory.STORAGE);
             else
                 _ = ResetOnMainThread(@event.Player.Player);
 

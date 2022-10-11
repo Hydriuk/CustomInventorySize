@@ -32,7 +32,7 @@ namespace CustomInventorySize.OpenMod
             foreach (var sPlayer in Provider.clients)
             {
                 if (Enabled)
-                    _inventoryModifier.ModifyInventory(sPlayer.player);
+                    _inventoryModifier.ModifyInventoryByRoles(sPlayer.player);
                 else
                     _inventoryModifier.ResetInventorySize(sPlayer.player);
             }

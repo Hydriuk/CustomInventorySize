@@ -84,7 +84,8 @@
     <Compile Include="Events\PlayerLifeUpdatedEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\SizesProvider.cs" />
-    <Compile Include="Services\ThreadManager.cs" />
+    <Compile Include="Services\ThreadAdapter.cs" />
+    <Compile Include="Services\TranslationsAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ic_scaled_bag.ico" />

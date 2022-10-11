@@ -31,7 +31,7 @@ namespace CustomInventorySize.RocketMod.Events
         private void OnStorageOpened(Player player)
         {
             if (_enabled)
-                _inventoryModifier.ModifyPage(player, PlayerInventory.STORAGE);
+                _inventoryModifier.ModifyPageByRoles(player, PlayerInventory.STORAGE);
             else
                 TaskDispatcher.QueueOnMainThread(() => _inventoryModifier.ResetStorage(player));
         }

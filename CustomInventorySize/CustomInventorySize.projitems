@@ -9,15 +9,18 @@
     <Import_RootNamespace>CustomInventorySize</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)API\IChatMessenger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)API\IInventoryModifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)API\ISizesProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)API\IThreadManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)API\IThreadAdapter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)API\ITranslationsAdapter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Configuration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\GroupSizes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\EPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ItemStorageSize.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\PageSize.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\StorageSize.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\ChatMessenger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\InventoryModifier.cs" />
   </ItemGroup>
 </Project>

@@ -3,8 +3,10 @@ using CustomInventorySize.RocketMod.Events;
 using CustomInventorySize.RocketMod.Services;
 using CustomInventorySize.Services;
 using HarmonyLib;
+using Rocket.API.Collections;
 using Rocket.Core.Plugins;
 using SDG.Unturned;
+using UnityEngine;
 
 namespace CustomInventorySize.RocketMod
 {
@@ -12,9 +14,11 @@ namespace CustomInventorySize.RocketMod
     {
         public static Plugin Instance { get; private set; }
 
-        public IInventoryModifier InventoryModifier;
         private ISizesProvider _sizesProvider;
-        private IThreadManager _threadManager;
+        private ITranslationsAdapter _translationsAdapter;
+        private IThreadAdapter _threadAdapter;
+        private IInventoryModifier _inventoryModifier;
+        private IChatMessenger _chatMessenger;
 
         private PlayerConnectedEvent _playerConnectedEvent;
         private PlayerClothingEquippedEvent _playerClothingEquippedEvent;
@@ -28,13 +32,15 @@ namespace CustomInventorySize.RocketMod
             Instance = this;
 
             _sizesProvider = new SizesProvider(Configuration.Instance);
-            _threadManager = new ThreadManager();
-            InventoryModifier = new InventoryModifier(_sizesProvider, _threadManager);
+            _threadAdapter = new ThreadAdapter();
+            _translationsAdapter = new TranslationsAdapter(Translations.Instance);
+            _chatMessenger = new ChatMessenger(_translationsAdapter, _threadAdapter);
+            _inventoryModifier = new InventoryModifier(_sizesProvider, _threadAdapter, _chatMessenger);
 
-            _playerConnectedEvent = new PlayerConnectedEvent(InventoryModifier);
-            _playerClothingEquippedEvent = new PlayerClothingEquippedEvent(InventoryModifier);
-            _playerLifeUpdatedEvent = new PlayerLifeUpdatedEvent(InventoryModifier);
-            _playerOpenedStorageEvent = new PlayerOpenedStorageEvent(InventoryModifier);
+            _playerConnectedEvent = new PlayerConnectedEvent(_inventoryModifier);
+            _playerClothingEquippedEvent = new PlayerClothingEquippedEvent(_inventoryModifier);
+            _playerLifeUpdatedEvent = new PlayerLifeUpdatedEvent(_inventoryModifier);
+            _playerOpenedStorageEvent = new PlayerOpenedStorageEvent(_inventoryModifier);
 
             _harmony = new Harmony("Hydriuk.CustomInventorySize");
             _harmony.PatchAll();
@@ -43,9 +49,9 @@ namespace CustomInventorySize.RocketMod
             foreach (var sPlayer in Provider.clients)
             {
                 if (Configuration.Instance.Enabled)
-                    InventoryModifier.ModifyInventory(sPlayer.player);
+                    _inventoryModifier.ModifyInventoryByRoles(sPlayer.player);
                 else
-                    InventoryModifier.ResetInventorySize(sPlayer.player);
+                    _inventoryModifier.ResetInventorySize(sPlayer.player);
             }
         }
 
@@ -55,6 +61,17 @@ namespace CustomInventorySize.RocketMod
             _playerClothingEquippedEvent.Dispose();
             _playerLifeUpdatedEvent.Dispose();
             _playerOpenedStorageEvent.Dispose();
+
+            _harmony.UnpatchAll();
         }
+
+        public override TranslationList DefaultTranslations => new TranslationList()
+        {
+            { "StorageItemDropped", "Items from the storage were dropped because it was resized" },
+            { "InventoryItemDropped", "Items from your inventory were dropped because it was resized" }
+        };
+
+        public void ResetInventorySize(Player player) => _inventoryModifier.ResetInventorySize(player);
+        public void SendModifyPage(Player player, byte pageIndex, byte width, byte height) => _inventoryModifier.ModifyPage(player, pageIndex, width, height);
     }
 }

@@ -7,7 +7,7 @@ using System;
 namespace CustomInventorySize.OpenMod.Services
 {
     [PluginServiceImplementation(Lifetime = ServiceLifetime.Singleton)]
-    public class ThreadManager : IThreadManager
+    public class ThreadAdapter : IThreadAdapter
     {
         public async void RunOnMainThread(Action action)
         {

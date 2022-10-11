@@ -60,7 +60,7 @@ namespace CustomInventorySize.RocketMod.Commands
             }
 
             foreach (var player in targets)
-                Plugin.Instance.InventoryModifier.SendModifyPage(player, pageIndex, width, height);
+                Plugin.Instance.SendModifyPage(player, pageIndex, width, height);
         }
     }
 }

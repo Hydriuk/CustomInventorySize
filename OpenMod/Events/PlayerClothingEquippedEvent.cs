@@ -28,19 +28,19 @@ namespace CustomInventorySize.OpenMod.Events
                 switch (@event.Type)
                 {
                     case ClothingType.Backpack:
-                        _inventoryModifier.ModifyPage(@event.Player.Player, PlayerInventory.BACKPACK);
+                        _inventoryModifier.ModifyPageByRoles(@event.Player.Player, PlayerInventory.BACKPACK);
                         break;
 
                     case ClothingType.Vest:
-                        _inventoryModifier.ModifyPage(@event.Player.Player, PlayerInventory.VEST);
+                        _inventoryModifier.ModifyPageByRoles(@event.Player.Player, PlayerInventory.VEST);
                         break;
 
                     case ClothingType.Shirt:
-                        _inventoryModifier.ModifyPage(@event.Player.Player, PlayerInventory.SHIRT);
+                        _inventoryModifier.ModifyPageByRoles(@event.Player.Player, PlayerInventory.SHIRT);
                         break;
 
                     case ClothingType.Pants:
-                        _inventoryModifier.ModifyPage(@event.Player.Player, PlayerInventory.PANTS);
+                        _inventoryModifier.ModifyPageByRoles(@event.Player.Player, PlayerInventory.PANTS);
                         break;
                 }
             });
