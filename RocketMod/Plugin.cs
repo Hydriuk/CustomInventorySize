@@ -6,7 +6,6 @@ using HarmonyLib;
 using Rocket.API.Collections;
 using Rocket.Core.Plugins;
 using SDG.Unturned;
-using UnityEngine;
 
 namespace CustomInventorySize.RocketMod
 {
@@ -72,6 +71,7 @@ namespace CustomInventorySize.RocketMod
         };
 
         public void ResetInventorySize(Player player) => _inventoryModifier.ResetInventorySize(player);
+
         public void SendModifyPage(Player player, byte pageIndex, byte width, byte height) => _inventoryModifier.ModifyPage(player, pageIndex, width, height);
     }
 }

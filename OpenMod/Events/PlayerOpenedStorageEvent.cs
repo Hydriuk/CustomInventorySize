@@ -1,13 +1,8 @@
 ﻿using CustomInventorySize.API;
-using CustomInventorySize.Models;
 using Cysharp.Threading.Tasks;
 using OpenMod.API.Eventing;
 using OpenMod.Unturned.Players.Inventory.Events;
 using SDG.Unturned;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CustomInventorySize.OpenMod.Events

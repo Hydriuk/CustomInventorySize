@@ -31,7 +31,6 @@ namespace CustomInventorySize.RocketMod.Events
                 _inventoryModifier.ModifyInventoryByRoles(player);
             else
                 _inventoryModifier.ResetInventorySize(player);
-
         }
     }
 }

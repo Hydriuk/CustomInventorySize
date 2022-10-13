@@ -2,12 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using OpenMod.API.Ioc;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Protocols.WSTrust;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomInventorySize.OpenMod.Services
 {

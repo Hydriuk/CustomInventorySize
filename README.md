@@ -65,7 +65,7 @@ Groups:
 
 `Groups` : This plugin uses rocketmod groups / openmod roles. You can set different items/pages sizes for different groups. The plugin uses the priority of the groups to prioritize the items/pages sizes
 
-`Items` : You can set a size specific to clothes that have an inventory. The size of the players' inventory will change when they'll equip this item. Items have priority before pages.
+`Items` : You can set a size specific to **clothes** that have an inventory. The size of the players' inventory will change when they'll equip this item. Items have priority before pages. It also works for storage items like **lockers** or **sentries**.
 
 `Pages` : You can set a size for a page. It'll be the default page size for the players belonging to the group.
 
@@ -77,7 +77,7 @@ Groups:
 > - `4` : Player's vest
 > - `5` : Player's shirt
 > - `6` : Player's pants
-> - `7` : <font color="ff1021">[Do not use] Opened storage</font>
+> - `7` : Opened storage
 > - `8` : <font color="ff1021">[Do not use] Nearby items</font>
 
 ## Events

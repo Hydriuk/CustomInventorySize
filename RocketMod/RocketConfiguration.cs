@@ -2,7 +2,6 @@
 using Rocket.API;
 using SDG.Unturned;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 
 namespace CustomInventorySize.RocketMod
 {

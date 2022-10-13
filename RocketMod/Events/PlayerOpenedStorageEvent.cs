@@ -3,10 +3,6 @@ using HarmonyLib;
 using Rocket.Core.Utils;
 using SDG.Unturned;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomInventorySize.RocketMod.Events
 {
@@ -37,6 +33,7 @@ namespace CustomInventorySize.RocketMod.Events
         }
 
         private delegate void OpenedStorage(Player player);
+
         private static event OpenedStorage OnOpenedStorage;
 
         [HarmonyPatch(typeof(PlayerInventory), nameof(PlayerInventory.openStorage))]

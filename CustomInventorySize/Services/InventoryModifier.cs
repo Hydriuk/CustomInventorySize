@@ -5,10 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenMod.API.Ioc;
 #endif
 using SDG.Unturned;
-using Steamworks;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace CustomInventorySize.Services
 {
@@ -232,7 +230,7 @@ namespace CustomInventorySize.Services
             foreach (var item in player.inventory.items[pageIndex].items)
             {
                 bool rotated = item.rot % 2 == 0;
-                byte size_x =  rotated ? item.size_x : item.size_y;
+                byte size_x = rotated ? item.size_x : item.size_y;
                 byte size_y = !rotated ? item.size_x : item.size_y;
 
                 if (item.x + size_x > width || item.y + size_y > height)

@@ -1,11 +1,8 @@
 ﻿using CustomInventorySize.API;
 using Rocket.API.Collections;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomInventorySize.RocketMod.Services
 {
@@ -18,7 +15,7 @@ namespace CustomInventorySize.RocketMod.Services
             _tranlsations = translations;
         }
 
-        public string this[string key] 
+        public string this[string key]
         {
             get
             {
@@ -31,7 +28,7 @@ namespace CustomInventorySize.RocketMod.Services
 
         public string this[string key, object arguments]
         {
-            get 
+            get
             {
                 if (key == null)
                     throw new ArgumentNullException(nameof(key));

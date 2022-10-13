@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace CustomInventorySize.Models
 {
@@ -20,6 +18,6 @@ namespace CustomInventorySize.Models
 
         Slots = Primary | Secondary,
         Inventory = Hands | Backpack | Vest | Shirt | Pants,
-        All       = Slots |Inventory | Storage | Nearby
+        All       = Slots | Inventory | Storage | Nearby
     }
 }
