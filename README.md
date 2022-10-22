@@ -14,16 +14,16 @@ This plugin updates the inventory size of the players with a rocket group based 
   <Groups>
 
     <!-- Name of the rocket group -->
-    <Group GroupName="default"> <!-- Set size for the rocket default group -->
+    <Group GroupName="default">
 
       <!-- List of clothes and their new inventory size -->
       <Items>
-        <ItemStorage Width="20" Height="40" ItemId="253" /> <!-- Change the alicepack size to be 20x40 for the default group -->
+        <ItemStorage Width="10" Height="20" Id="253" />
       </Items>
 
       <!-- List of pages and their new inventory size -->
       <Pages>
-        <Page Width="1" Height="1" Index="2" /> <!-- Change the hands size to be 1x1 for the default group-->
+        <Page Width="5" Height="5" Page="2" />
       </Pages>
 
     </Group>
@@ -46,9 +46,9 @@ Groups:
 
   # List of clothes and their new inventory size
   Items:
-  - ItemId: 253
-    Width: 20
-    Height: 40
+  - Id: 253
+    Width: 10
+    Height: 20
 
   # List of pages and their new inventory size
   # Available pages :
@@ -57,10 +57,11 @@ Groups:
   # 4 : Vest
   # 5 : Shirt
   # 6 : Pants
+  # 7 : Storage
   Pages:
-  - Index: 2
-    Width: 1
-    Height: 1
+  - Page: 2
+    Width: 5
+    Height: 5
 ```
 
 `Groups` : This plugin uses rocketmod groups / openmod roles. You can set different items/pages sizes for different groups. The plugin uses the priority of the groups to prioritize the items/pages sizes
@@ -87,6 +88,8 @@ Groups:
 - `Clothing equipped` : Check the player's group and update the equipped clothes size accordingly to the configuration
 
 - `Player revived` : Check the player's group and update all clothes size accordingly to the configuration
+
+- `Opened storage` : Check the player's group and update storage size accordingly to the configuration
 
 ## Notes
 

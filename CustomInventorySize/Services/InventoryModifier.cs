@@ -120,7 +120,7 @@ namespace CustomInventorySize.Services
             if (pageIndex == PlayerInventory.SLOTS)
             {
                 // Get the configuration for this page
-                PageSize pageSize = sizes.Pages.FirstOrDefault(page => page.Index == pageIndex);
+                PageSize pageSize = sizes.Pages.FirstOrDefault(page => page.Page == pageIndex);
 
                 // Change the page size
                 if (pageSize != null)
@@ -150,7 +150,7 @@ namespace CustomInventorySize.Services
                 return (EPage)(1 << pageIndex);
 
             // Get the configuration for this item
-            ItemStorageSize itemSize = sizes.Items.FirstOrDefault(item => item.ItemId == itemId);
+            ItemStorageSize itemSize = sizes.Items.FirstOrDefault(item => item.Id == itemId);
 
             if (itemSize != null)
             {
@@ -160,7 +160,7 @@ namespace CustomInventorySize.Services
             else
             {
                 // Get the default configuration for this page
-                PageSize pageSize = sizes.Pages.FirstOrDefault(page => page.Index == pageIndex);
+                PageSize pageSize = sizes.Pages.FirstOrDefault(page => page.Page == pageIndex);
 
                 // Change the page size
                 if (pageSize != null)

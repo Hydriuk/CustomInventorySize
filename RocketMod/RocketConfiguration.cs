@@ -16,11 +16,11 @@ namespace CustomInventorySize.RocketMod
                 {
                     Pages = new List<PageSize>()
                     {
-                        new PageSize(PlayerInventory.SLOTS, 1, 1)
+                        new PageSize(PlayerInventory.SLOTS, 5, 5)
                     },
                     Items = new List<ItemStorageSize>()
                     {
-                        new ItemStorageSize(253, 10, 12)
+                        new ItemStorageSize(253, 10, 20)
                     }
                 }
             };

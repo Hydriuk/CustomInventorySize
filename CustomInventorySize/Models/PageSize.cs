@@ -4,15 +4,15 @@ namespace CustomInventorySize.Models
 {
     public class PageSize : StorageSize
     {
-        [XmlAttribute()]
-        public byte Index { get; set; }
+        [XmlAttribute]
+        public byte Page { get; set; }
 
         public PageSize()
         { }
 
         public PageSize(byte pageIndex, byte width, byte height) : base(width, height)
         {
-            Index = pageIndex;
+            Page = pageIndex;
         }
     }
 }
