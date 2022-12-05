@@ -70,16 +70,16 @@ Groups:
 
 `Pages` : You can set a size for a page. It'll be the default page size for the players belonging to the group.
 
-> *Page indexes* : 
-> - `0` : <font color="ff1021">[Do not use] Primary weapon</font>
-> - `1` : <font color="ff1021">[Do not use] Secondary weapon</font>
+> *Pages* : 
+> - `0` : <font color="ff150c">[Do not use] Primary weapon</font>
+> - `1` : <font color="ff150c">[Do not use] Secondary weapon</font>
 > - `2` : Player's hands
 > - `3` : Player's backpack
 > - `4` : Player's vest
 > - `5` : Player's shirt
 > - `6` : Player's pants
 > - `7` : Opened storage
-> - `8` : <font color="ff1021">[Do not use] Nearby items</font>
+> - `8` : <font color="ff150c">[Do not use] Nearby items</font>
 
 ## Events
 

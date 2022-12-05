@@ -3,18 +3,21 @@ using CustomInventorySize.RocketMod.Events;
 using CustomInventorySize.RocketMod.Services;
 using CustomInventorySize.Services;
 using HarmonyLib;
+using PermissionsModule.API;
+using PermissionsModule.RocketMod;
 using Rocket.API.Collections;
 using Rocket.Core.Plugins;
 using SDG.Unturned;
 
 namespace CustomInventorySize.RocketMod
 {
-    public class Plugin : RocketPlugin<RocketConfiguration>
+    public class Plugin : RocketPlugin<Configuration>
     {
         public static Plugin Instance { get; private set; }
 
         private ISizesProvider _sizesProvider;
         private ITranslationsAdapter _translationsAdapter;
+        private IPermissionsAdapter _permissionsAdapter;
         private IThreadAdapter _threadAdapter;
         private IInventoryModifier _inventoryModifier;
         private IChatMessenger _chatMessenger;
@@ -30,8 +33,9 @@ namespace CustomInventorySize.RocketMod
         {
             Instance = this;
 
-            _sizesProvider = new SizesProvider(Configuration.Instance);
+            _permissionsAdapter = new PermissionsAdapter();
             _threadAdapter = new ThreadAdapter();
+            _sizesProvider = new SizesProvider(Configuration.Instance, _permissionsAdapter);
             _translationsAdapter = new TranslationsAdapter(Translations.Instance);
             _chatMessenger = new ChatMessenger(_translationsAdapter, _threadAdapter);
             _inventoryModifier = new InventoryModifier(_sizesProvider, _threadAdapter, _chatMessenger);

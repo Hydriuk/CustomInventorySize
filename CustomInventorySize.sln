@@ -7,7 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RocketMod", "RocketMod\Rock
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenMod", "OpenMod\OpenMod.csproj", "{009AA2E9-65A9-48B3-879F-E665461A79EF}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CustomInventorySize", "CustomInventorySize\CustomInventorySize.shproj", "{62283CB9-450C-40D0-B244-C6DC3515509A}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "PermissionsModule", "..\..\_Shared\PermissionsModule\PermissionsModule.shproj", "{E1445EE2-AFAD-42D5-B40A-42876500669A}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CustomInventorySize", "CustomInventorySize\CustomInventorySize.shproj", "{928EA9AA-0589-4E21-90D4-A9A2E9AFB436}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,7 +19,6 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{4D59AC67-536F-4D30-AD83-4BC1A84BA005}.OPENMOD|Any CPU.ActiveCfg = ROCKETMOD|Any CPU
 		{4D59AC67-536F-4D30-AD83-4BC1A84BA005}.ROCKETMOD|Any CPU.ActiveCfg = ROCKETMOD|Any CPU
-		{4D59AC67-536F-4D30-AD83-4BC1A84BA005}.ROCKETMOD|Any CPU.Build.0 = ROCKETMOD|Any CPU
 		{009AA2E9-65A9-48B3-879F-E665461A79EF}.OPENMOD|Any CPU.ActiveCfg = OPENMOD|Any CPU
 		{009AA2E9-65A9-48B3-879F-E665461A79EF}.OPENMOD|Any CPU.Build.0 = OPENMOD|Any CPU
 		{009AA2E9-65A9-48B3-879F-E665461A79EF}.ROCKETMOD|Any CPU.ActiveCfg = OPENMOD|Any CPU
@@ -30,7 +31,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		CustomInventorySize\CustomInventorySize.projitems*{009aa2e9-65a9-48b3-879f-e665461a79ef}*SharedItemsImports = 5
+		..\..\_Shared\PermissionsModule\PermissionsModule.projitems*{009aa2e9-65a9-48b3-879f-e665461a79ef}*SharedItemsImports = 5
 		CustomInventorySize\CustomInventorySize.projitems*{4d59ac67-536f-4d30-ad83-4bc1a84ba005}*SharedItemsImports = 4
-		CustomInventorySize\CustomInventorySize.projitems*{62283cb9-450c-40d0-b244-c6dc3515509a}*SharedItemsImports = 13
+		..\..\_Shared\PermissionsModule\PermissionsModule.projitems*{4d59ac67-536f-4d30-ad83-4bc1a84ba005}*SharedItemsImports = 4
+		CustomInventorySize\CustomInventorySize.projitems*{928ea9aa-0589-4e21-90d4-a9a2e9afb436}*SharedItemsImports = 13
+		..\..\_Shared\PermissionsModule\PermissionsModule.projitems*{e1445ee2-afad-42d5-b40a-42876500669a}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

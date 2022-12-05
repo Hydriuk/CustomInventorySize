@@ -29,7 +29,7 @@ namespace CustomInventorySize.Services
         public async void ModifyInventoryByRoles(Player player)
         {
             // Get the player's groups ordered by priority
-            List<GroupSizes> groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(player);
+            List<GroupSizes> groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(player.channel.owner.playerID.steamID);
 
             EPage modifiedPages = EPage.None;
 
@@ -75,7 +75,7 @@ namespace CustomInventorySize.Services
         public async void ModifyPageByRoles(Player player, byte pageIndex)
         {
             // Get the player's groups ordered by priority
-            List<GroupSizes> groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(player);
+            List<GroupSizes> groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(player.channel.owner.playerID.steamID);
 
             foreach (var groupSizes in groupSizesList)
             {

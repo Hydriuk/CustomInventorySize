@@ -3,24 +3,25 @@
   <PropertyGroup>
     <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <HasSharedItems>true</HasSharedItems>
-    <SharedGUID>62283cb9-450c-40d0-b244-c6dc3515509a</SharedGUID>
+    <SharedGUID>928ea9aa-0589-4e21-90d4-a9a2e9afb436</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <Import_RootNamespace>CustomInventorySize</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)API\IChatMessenger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)API\IConfigurationAdapter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)API\IInventoryModifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)API\ISizesProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)API\IThreadAdapter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)API\ITranslationsAdapter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Configuration.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\GroupSizes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\EPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\GroupSizes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ItemStorageSize.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\PageSize.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\StorageSize.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\ChatMessenger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\InventoryModifier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\SizesProvider.cs" />
   </ItemGroup>
 </Project>

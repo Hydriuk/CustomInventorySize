@@ -20,12 +20,5 @@ namespace CustomInventorySize.API
         /// <param name="playerId"> Id of the player of whom to get groups </param>
         /// <returns> Sizes ordered by group priority </returns>
         Task<List<GroupSizes>> GetPrioritizedSizesAsync(CSteamID playerId);
-
-        /// <summary>
-        /// Get configured sizes for the player's groups
-        /// </summary>
-        /// <param name="player"> Player of whom to get groups </param>
-        /// <returns> Sizes ordered by group priority </returns>
-        Task<List<GroupSizes>> GetPrioritizedSizesAsync(Player player);
     }
 }

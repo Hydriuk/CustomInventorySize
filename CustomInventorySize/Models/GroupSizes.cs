@@ -6,7 +6,7 @@ namespace CustomInventorySize.Models
     public class GroupSizes
     {
         [XmlAttribute()]
-        public string GroupName { get; set; } = string.Empty;
+        public string PermissionName { get; set; } = string.Empty;
 
         [XmlArrayItem("ItemStorage")]
         public List<ItemStorageSize> Items { get; set; } = new List<ItemStorageSize>();
@@ -17,9 +17,9 @@ namespace CustomInventorySize.Models
         public GroupSizes()
         { }
 
-        public GroupSizes(string groupName)
+        public GroupSizes(string permissionName)
         {
-            GroupName = groupName;
+            PermissionName = permissionName;
         }
     }
 }

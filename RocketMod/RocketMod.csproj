@@ -15,14 +15,14 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ROCKETMOD|AnyCPU'">
     <OutputPath>bin\ROCKETMOD\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>none</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <DocumentationFile>
     </DocumentationFile>
+    <DefineConstants>ROCKETMOD</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>ic_scaled_bag.ico</ApplicationIcon>
@@ -77,13 +77,12 @@
     <Compile Include="Commands\ResetInventorySizeCommand.cs" />
     <Compile Include="Commands\SetInventorySizeCommand.cs" />
     <Compile Include="Events\PlayerOpenedStorageEvent.cs" />
-    <Compile Include="RocketConfiguration.cs" />
+    <Compile Include="Configuration.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Events\PlayerConnectedEvent.cs" />
     <Compile Include="Events\PlayerClothingEquippedEvent.cs" />
     <Compile Include="Events\PlayerLifeUpdatedEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\SizesProvider.cs" />
     <Compile Include="Services\ThreadAdapter.cs" />
     <Compile Include="Services\TranslationsAdapter.cs" />
   </ItemGroup>
@@ -93,6 +92,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <Import Project="..\..\..\_Shared\PermissionsModule\PermissionsModule.projitems" Label="Shared" />
   <Import Project="..\CustomInventorySize\CustomInventorySize.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -18,10 +18,10 @@ namespace CustomInventorySize.OpenMod
 
         public Plugin(
             IServiceProvider serviceProvider,
-            IConfiguration configuration,
+            IConfigurationAdapter configuration,
             IInventoryModifier inventoryModifier) : base(serviceProvider)
         {
-            Enabled = configuration.GetValue<bool>("Enabled");
+            Enabled = configuration.Enabled;
 
             _inventoryModifier = inventoryModifier;
         }

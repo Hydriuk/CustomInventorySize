@@ -1,12 +1,16 @@
-﻿using CustomInventorySize.Models;
+﻿using CustomInventorySize.API;
+using CustomInventorySize.Models;
 using Rocket.API;
 using SDG.Unturned;
 using System.Collections.Generic;
 
 namespace CustomInventorySize.RocketMod
 {
-    public class RocketConfiguration : Configuration, IRocketPluginConfiguration
+    public class Configuration : IConfigurationAdapter, IRocketPluginConfiguration
     {
+        public bool Enabled { get; set; }
+        public List<GroupSizes> Groups { get; set; }
+
         public void LoadDefaults()
         {
             Enabled = true;

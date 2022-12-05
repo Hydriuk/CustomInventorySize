@@ -11,9 +11,9 @@
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <NoWarn>$(NoWarn);NU1701;NU1702;CS0436</NoWarn>
     <LangVersion>9.0</LangVersion>
-    <Version>1.1.0</Version>
-    <InformationalVersion>1.1.0</InformationalVersion>
-    <PackageVersion>1.1.0</PackageVersion>
+    <Version>1.2.0</Version>
+    <InformationalVersion>1.2.0</InformationalVersion>
+    <PackageVersion>1.2.0</PackageVersion>
     <Configurations>OPENMOD</Configurations>
     <ApplicationIcon>ic_scaled_bag.ico</ApplicationIcon>
     <PackageIcon>ic_scaled_bag.png</PackageIcon>
@@ -76,5 +76,7 @@
   </Target>
 
   <Import Project="..\CustomInventorySize\CustomInventorySize.projitems" Label="Shared" />
+
+  <Import Project="..\..\..\_Shared\PermissionsModule\PermissionsModule.projitems" Label="Shared" />
 
 </Project>
