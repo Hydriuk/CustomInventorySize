@@ -3,6 +3,7 @@
 using OpenMod.API.Ioc;
 #endif
 using SDG.Unturned;
+using Steamworks;
 
 namespace CustomInventorySize.API
 {

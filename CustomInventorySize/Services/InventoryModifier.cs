@@ -5,8 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenMod.API.Ioc;
 #endif
 using SDG.Unturned;
+using Steamworks;
 using System.Collections.Generic;
 using System.Linq;
+using static SDG.Provider.SteamGetInventoryResponse;
 
 namespace CustomInventorySize.Services
 {
@@ -31,14 +33,13 @@ namespace CustomInventorySize.Services
             // Get the player's groups ordered by priority
             List<GroupSizes> groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(player.channel.owner.playerID.steamID);
 
-            EPage modifiedPages = EPage.None;
+            EPage modifiedPages = EPage.Storage;
 
             // Preset empty clothes / storage
             if (player.clothing.backpack == 0) modifiedPages |= EPage.Backpack;
             if (player.clothing.vest == 0) modifiedPages |= EPage.Vest;
             if (player.clothing.shirt == 0) modifiedPages |= EPage.Shirt;
             if (player.clothing.pants == 0) modifiedPages |= EPage.Pants;
-            if (!player.inventory.isStoring) modifiedPages |= EPage.Storage;
 
             foreach (var groupSizes in groupSizesList)
             {
@@ -51,6 +52,22 @@ namespace CustomInventorySize.Services
                 // Stop if all pages are set
                 if (modifiedPages == (EPage.Inventory | EPage.Storage))
                     break;
+            }
+
+            if (player.inventory.isStoring)
+            {
+                BarricadeDrop barricade = BarricadeManager.FindBarricadeByRootTransform(player.inventory.storage.transform);
+                BarricadeData data = barricade.GetServersideData();
+
+                List<GroupSizes> ownerSizesList = await _sizesProvider.GetPrioritizedSizesAsync(new CSteamID(data.owner));
+
+                foreach (var ownerSizes in ownerSizesList)
+                {
+                    var page = ModifyPageByRole(player, ownerSizes, PlayerInventory.STORAGE, barricade.asset.id);
+
+                    if (page == EPage.Storage)
+                        break;
+                }
             }
 
             bool itemDropped = false;
@@ -75,12 +92,25 @@ namespace CustomInventorySize.Services
         public async void ModifyPageByRoles(Player player, byte pageIndex)
         {
             // Get the player's groups ordered by priority
-            List<GroupSizes> groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(player.channel.owner.playerID.steamID);
+            List<GroupSizes> groupSizesList;
+            BarricadeDrop? barricade = null;
+            if (pageIndex == PlayerInventory.STORAGE)
+            {
+                barricade = BarricadeManager.FindBarricadeByRootTransform(player.inventory.storage.transform);
+                BarricadeData data = barricade.GetServersideData();
+
+                groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(new CSteamID(data.owner));
+            }
+            else
+            {
+                groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(player.channel.owner.playerID.steamID);
+            }
+
 
             foreach (var groupSizes in groupSizesList)
             {
                 // Modifies the pages and returns the modified pages
-                EPage modifiedPage = ModifyPageByRole(player, groupSizes, pageIndex);
+                EPage modifiedPage = ModifyPageByRole(player, groupSizes, pageIndex, barricade?.asset.id ?? 0);
 
                 // Stop if the page has been modified
                 if (modifiedPage != EPage.None)
@@ -115,7 +145,7 @@ namespace CustomInventorySize.Services
         /// <param name="sizes"> Group configuration to use to change the page size </param>
         /// <param name="pageIndex"> Page to change the size of </param>
         /// <returns> A byte representing the indexes of the pages that have been changed </returns>
-        private EPage ModifyPageByRole(Player player, GroupSizes sizes, byte pageIndex)
+        private EPage ModifyPageByRole(Player player, GroupSizes sizes, byte pageIndex, ushort storageId = 0)
         {
             if (pageIndex == PlayerInventory.SLOTS)
             {
@@ -140,10 +170,7 @@ namespace CustomInventorySize.Services
             else if (pageIndex == PlayerInventory.PANTS)
                 itemId = player.clothing.pants;
             else if (pageIndex == PlayerInventory.STORAGE)
-            {
-                BarricadeDrop barricade = BarricadeManager.FindBarricadeByRootTransform(player.inventory.storage.transform);
-                itemId = barricade.asset.id;
-            }
+                itemId = storageId;
 
             // The item was removed, ignore the page
             if (itemId == 0)
