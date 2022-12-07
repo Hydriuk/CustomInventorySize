@@ -40,11 +40,5 @@ namespace CustomInventorySize.API
         /// </summary>
         /// <param name="player"> Player of whom to reset the inventory </param>
         void ResetInventorySize(Player player);
-
-        /// <summary>
-        /// Reset opened storage size
-        /// </summary>
-        /// <param name="player"></param>
-        void ResetStorage(Player player);
     }
 }

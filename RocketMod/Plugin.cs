@@ -21,11 +21,12 @@ namespace CustomInventorySize.RocketMod
         private IThreadAdapter _threadAdapter;
         private IInventoryModifier _inventoryModifier;
         private IChatMessenger _chatMessenger;
+        private IStorageModifier _storageModifier;
 
         private PlayerConnectedEvent _playerConnectedEvent;
         private PlayerClothingEquippedEvent _playerClothingEquippedEvent;
         private PlayerLifeUpdatedEvent _playerLifeUpdatedEvent;
-        private PlayerOpenedStorageEvent _playerOpenedStorageEvent;
+        private BarricadeDeployedEvent _barricadeDeployedEvent;
 
         private Harmony _harmony;
 
@@ -33,17 +34,20 @@ namespace CustomInventorySize.RocketMod
         {
             Instance = this;
 
+            System.Console.WriteLine("Enalbed " + Configuration.Instance.Enabled);
+
             _permissionsAdapter = new PermissionsAdapter();
             _threadAdapter = new ThreadAdapter();
             _sizesProvider = new SizesProvider(Configuration.Instance, _permissionsAdapter);
             _translationsAdapter = new TranslationsAdapter(Translations.Instance);
             _chatMessenger = new ChatMessenger(_translationsAdapter, _threadAdapter);
             _inventoryModifier = new InventoryModifier(_sizesProvider, _threadAdapter, _chatMessenger);
+            _storageModifier = new StorageModifier(_sizesProvider, _threadAdapter);
 
             _playerConnectedEvent = new PlayerConnectedEvent(_inventoryModifier);
             _playerClothingEquippedEvent = new PlayerClothingEquippedEvent(_inventoryModifier);
             _playerLifeUpdatedEvent = new PlayerLifeUpdatedEvent(_inventoryModifier);
-            _playerOpenedStorageEvent = new PlayerOpenedStorageEvent(_inventoryModifier);
+            _barricadeDeployedEvent = new BarricadeDeployedEvent(_storageModifier);
 
             _harmony = new Harmony("Hydriuk.CustomInventorySize");
             _harmony.PatchAll();
@@ -56,6 +60,11 @@ namespace CustomInventorySize.RocketMod
                 else
                     _inventoryModifier.ResetInventorySize(sPlayer.player);
             }
+
+            if (Level.isLoaded)
+                LateLoad(0);
+            else
+                Level.onPostLevelLoaded += LateLoad;
         }
 
         protected override void Unload()
@@ -63,9 +72,31 @@ namespace CustomInventorySize.RocketMod
             _playerConnectedEvent.Dispose();
             _playerClothingEquippedEvent.Dispose();
             _playerLifeUpdatedEvent.Dispose();
-            _playerOpenedStorageEvent.Dispose();
+            _barricadeDeployedEvent.Dispose();
 
             _harmony.UnpatchAll();
+        }
+
+        private void LateLoad(int level)
+        {
+            Level.onPostLevelLoaded -= LateLoad;
+
+            foreach (var barricadeRegion in BarricadeManager.BarricadeRegions)
+            {
+                if (barricadeRegion == null || barricadeRegion.drops == null)
+                    continue;
+
+                foreach (var barricade in barricadeRegion.drops)
+                {
+                    if (barricade.interactable is not InteractableStorage storage)
+                        continue;
+
+                    if (Configuration.Instance.Enabled)
+                        _storageModifier.ModifyStorage(storage, barricade.asset.id);
+                    else
+                        _storageModifier.ResetStorage(barricade);
+                }
+            }
         }
 
         public override TranslationList DefaultTranslations => new TranslationList()

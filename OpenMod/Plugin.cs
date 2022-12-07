@@ -1,6 +1,5 @@
 ﻿using CustomInventorySize.API;
 using Cysharp.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using OpenMod.API.Plugins;
 using OpenMod.Unturned.Plugins;
 using SDG.Unturned;
@@ -15,15 +14,18 @@ namespace CustomInventorySize.OpenMod
         public static bool Enabled = false;
 
         private readonly IInventoryModifier _inventoryModifier;
+        private readonly IStorageModifier _storageModifier;
 
         public Plugin(
             IServiceProvider serviceProvider,
             IConfigurationAdapter configuration,
-            IInventoryModifier inventoryModifier) : base(serviceProvider)
+            IInventoryModifier inventoryModifier,
+            IStorageModifier storageModifier) : base(serviceProvider)
         {
             Enabled = configuration.Enabled;
 
             _inventoryModifier = inventoryModifier;
+            _storageModifier = storageModifier;
         }
 
         protected override UniTask OnLoadAsync()
@@ -37,7 +39,34 @@ namespace CustomInventorySize.OpenMod
                     _inventoryModifier.ResetInventorySize(sPlayer.player);
             }
 
+            if (Level.isLoaded)
+                LateLoad(0);
+            else
+                Level.onPostLevelLoaded += LateLoad;
+
             return UniTask.CompletedTask;
+        }
+
+        private void LateLoad(int level)
+        {
+            Level.onPostLevelLoaded -= LateLoad;
+
+            foreach (var barricadeRegion in BarricadeManager.BarricadeRegions)
+            {
+                if (barricadeRegion == null || barricadeRegion.drops == null)
+                    continue;
+
+                foreach (var barricade in barricadeRegion.drops)
+                {
+                    if (barricade.interactable is not InteractableStorage storage)
+                        continue;
+
+                    if (Enabled)
+                        _storageModifier.ModifyStorage(storage, barricade.asset.id);
+                    else
+                        _storageModifier.ResetStorage(barricade);
+                }
+            }
         }
     }
 }

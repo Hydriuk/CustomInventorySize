@@ -95,6 +95,8 @@ Groups:
 
 Reloading is supported. You can enable/disable the plugin while the server is running. The inventories will be updated when the plugin loads.
 
+When reloading, storages will be updated, and items exceeding the new storages size will be dropped form the storage.
+
 <font color="orange">Note that you cannot have more than 200 items in a storage slot. For example, you cannot have more than 200 items in your backpack</font>
 
 ### Attributions

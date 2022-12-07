@@ -54,22 +54,6 @@ namespace CustomInventorySize.Services
                     break;
             }
 
-            if (player.inventory.isStoring)
-            {
-                BarricadeDrop barricade = BarricadeManager.FindBarricadeByRootTransform(player.inventory.storage.transform);
-                BarricadeData data = barricade.GetServersideData();
-
-                List<GroupSizes> ownerSizesList = await _sizesProvider.GetPrioritizedSizesAsync(new CSteamID(data.owner));
-
-                foreach (var ownerSizes in ownerSizesList)
-                {
-                    var page = ModifyPageByRole(player, ownerSizes, PlayerInventory.STORAGE, barricade.asset.id);
-
-                    if (page == EPage.Storage)
-                        break;
-                }
-            }
-
             bool itemDropped = false;
             // Reset pages that were not modified
             if ((EPage.Hands & modifiedPages) != EPage.Hands)
@@ -82,8 +66,6 @@ namespace CustomInventorySize.Services
                 itemDropped |= ResetShirt(player);
             if ((EPage.Pants & modifiedPages) != EPage.Pants)
                 itemDropped |= ResetPants(player);
-            if ((EPage.Storage & modifiedPages) != EPage.Storage)
-                ResetStorage(player);
 
             if (itemDropped)
                 _chatMessenger.WarnInventoryItemDropped(player);
@@ -95,17 +77,9 @@ namespace CustomInventorySize.Services
             List<GroupSizes> groupSizesList;
             BarricadeDrop? barricade = null;
             if (pageIndex == PlayerInventory.STORAGE)
-            {
-                barricade = BarricadeManager.FindBarricadeByRootTransform(player.inventory.storage.transform);
-                BarricadeData data = barricade.GetServersideData();
+                return;
 
-                groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(new CSteamID(data.owner));
-            }
-            else
-            {
-                groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(player.channel.owner.playerID.steamID);
-            }
-
+            groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(player.channel.owner.playerID.steamID);
 
             foreach (var groupSizes in groupSizesList)
             {
@@ -116,22 +90,17 @@ namespace CustomInventorySize.Services
                 if (modifiedPage != EPage.None)
                     return;
             }
-
-            if (pageIndex == PlayerInventory.STORAGE)
-                ResetStorage(player);
         }
 
         public EPage ModifyPage(Player player, byte pageIndex, byte width, byte height)
         {
             // Drop the items that are out of bounds of the page size
-            bool itemDropped = DropExcess(player, pageIndex, width, height);
+            bool itemDropped = DropExcessInventory(player, pageIndex, width, height);
 
             // Update inventory size
             _threads.RunOnMainThread(() => player.inventory.items[pageIndex].resize(width, height));
 
-            if (itemDropped && pageIndex == PlayerInventory.STORAGE)
-                _chatMessenger.WarnStorageItemDropped(player);
-            else if (itemDropped)
+            if (itemDropped)
                 _chatMessenger.WarnInventoryItemDropped(player);
 
             // Convert the page index to EPage
@@ -169,8 +138,6 @@ namespace CustomInventorySize.Services
                 itemId = player.clothing.shirt;
             else if (pageIndex == PlayerInventory.PANTS)
                 itemId = player.clothing.pants;
-            else if (pageIndex == PlayerInventory.STORAGE)
-                itemId = storageId;
 
             // The item was removed, ignore the page
             if (itemId == 0)
@@ -226,22 +193,6 @@ namespace CustomInventorySize.Services
         }
 
         /// <summary>
-        /// Drop the items that are out of bounds of the page size
-        /// </summary>
-        /// <param name="player"> Player of whom to drop the excess items of </param>
-        /// <param name="pageIndex"> Page of which to drop the items from </param>
-        /// <param name="width"> Width bound </param>
-        /// <param name="height"> Height bound </param>
-        /// <returns> True if at least one item was dropped </returns>
-        private bool DropExcess(Player player, byte pageIndex, byte width, byte height)
-        {
-            if (pageIndex == PlayerInventory.STORAGE)
-                return DropExcessStorage(player, width, height);
-            else
-                return DropExcessInventory(player, pageIndex, width, height);
-        }
-
-        /// <summary>
         /// Drop the items that are out of bounds of the inventory page size
         /// </summary>
         /// <param name="player"> Player of whom to drop the excess items of </param>
@@ -266,51 +217,6 @@ namespace CustomInventorySize.Services
                     itemDropped |= true;
                 }
             }
-
-            return itemDropped;
-        }
-
-        /// <summary>
-        /// Drop the items that are out of bounds of the storage page size
-        /// </summary>
-        /// <param name="player"> Player of whom to drop the excess items of </param>
-        /// <param name="width"> Width bound </param>
-        /// <param name="height"> Height bound </param>
-        /// <returns> True if at least one item was dropped </returns>
-        private bool DropExcessStorage(Player player, byte width, byte height)
-        {
-            bool itemDropped = false;
-            List<ItemJar> items = new List<ItemJar>();
-
-            // Drop items that exceed the inventory space
-            foreach (var item in player.inventory.storage.items.items)
-            {
-                bool rotated = item.rot % 2 == 0;
-                byte size_x = rotated ? item.size_x : item.size_y;
-                byte size_y = !rotated ? item.size_x : item.size_y;
-
-                // ItemJar size takes rotation into account
-                if (!(item.x + size_x > width || item.y + size_y > height))
-                    continue;
-
-                // Drop item on floor
-                ItemManager.dropItem(item.item, player.transform.position + player.transform.forward * 0.5f, true, true, false);
-
-                items.Add(item);
-
-                itemDropped |= true;
-            }
-
-            // Remove dropped items from the storage
-            _threads.RunOnMainThread(() =>
-            {
-                foreach (var item in items)
-                {
-                    byte index = player.inventory.getIndex(PlayerInventory.STORAGE, item.x, item.y);
-
-                    player.inventory.removeItem(PlayerInventory.STORAGE, index);
-                }
-            });
 
             return itemDropped;
         }
@@ -349,11 +255,6 @@ namespace CustomInventorySize.Services
                         itemDropped = ResetPants(player);
                     break;
 
-                case EPage.Storage:
-                    if (player.inventory.isStoring)
-                        ResetStorage(player);
-                    break;
-
                 default:
                     break;
             }
@@ -388,29 +289,8 @@ namespace CustomInventorySize.Services
             if (player.clothing.pants != 0)
                 itemDropped |= ResetPants(player);
 
-            // Reset opened storage
-            if (player.inventory.isStoring)
-                ResetStorage(player);
-
             if (itemDropped)
                 _chatMessenger.WarnInventoryItemDropped(player);
-        }
-
-        /// <summary>
-        /// Reset the player's storage page
-        /// </summary>
-        /// <param name="player"> Player of whom to reset storage page </param>
-        public void ResetStorage(Player player)
-        {
-            BarricadeDrop barricade = BarricadeManager.FindBarricadeByRootTransform(player.inventory.storage.transform);
-            ItemStorageAsset asset = (ItemStorageAsset)barricade.asset;
-
-            bool itemDropped = DropExcessStorage(player, asset.storage_x, asset.storage_y);
-
-            _threads.RunOnMainThread(() => player.inventory.items[PlayerInventory.STORAGE].resize(asset.storage_x, asset.storage_y));
-
-            if (itemDropped)
-                _chatMessenger.WarnStorageItemDropped(player);
         }
 
         /// <summary>

@@ -22,11 +22,16 @@ namespace CustomInventorySize.Services
     {
         private readonly Dictionary<string, GroupSizes> _groupSizesProvider;
         private readonly IPermissionsAdapter _permissionsAdapter;
+        private readonly HashSet<ushort> _resizedItems;
 
         public SizesProvider(IConfigurationAdapter configuration, IPermissionsAdapter permissionsAdapter)
         {
             _groupSizesProvider = configuration.Groups.ToDictionary(group => group.PermissionName);
             _permissionsAdapter = permissionsAdapter;
+
+            _resizedItems = _groupSizesProvider.Values
+                .SelectMany(sizes => sizes.Items.Select(item => item.Id))
+                .ToHashSet();
         }
 
         public async Task<List<GroupSizes>> GetPrioritizedSizesAsync(CSteamID playerId)
@@ -42,5 +47,7 @@ namespace CustomInventorySize.Services
 
             return sizesOrderedList;
         }
+
+        public bool IsResizedItem(ushort id) => _resizedItems.Contains(id);
     }
 }
