@@ -40,6 +40,8 @@ namespace CustomInventorySize.OpenMod.Commands
                     targets.AddRange(Provider.clients.Select(sPlayer => sPlayer.player));
                 else
                     targets.Add(PlayerTool.getPlayer(Context.Parameters[0]));
+
+                i++;
             }
             else
             {

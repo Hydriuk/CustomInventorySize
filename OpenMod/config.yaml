@@ -8,7 +8,7 @@ Enabled: true
 Groups:
 
   # Name of the openmod role
-- GroupName: default
+- PermissionName: default
 
   # List of clothes and their new inventory size
   Items:

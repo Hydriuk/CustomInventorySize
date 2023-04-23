@@ -34,8 +34,6 @@ namespace CustomInventorySize.RocketMod
         {
             Instance = this;
 
-            System.Console.WriteLine("Enalbed " + Configuration.Instance.Enabled);
-
             _permissionsAdapter = new PermissionsAdapter();
             _threadAdapter = new ThreadAdapter();
             _sizesProvider = new SizesProvider(Configuration.Instance, _permissionsAdapter);
@@ -74,7 +72,7 @@ namespace CustomInventorySize.RocketMod
             _playerLifeUpdatedEvent.Dispose();
             _barricadeDeployedEvent.Dispose();
 
-            _harmony.UnpatchAll();
+            _harmony.UnpatchAll("Hydriuk.CustomInventorySize");
         }
 
         private void LateLoad(int level)

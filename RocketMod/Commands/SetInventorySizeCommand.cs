@@ -39,6 +39,8 @@ namespace CustomInventorySize.RocketMod.Commands
                     targets.AddRange(Provider.clients.Select(sPlayer => sPlayer.player));
                 else
                     targets.Add(PlayerTool.getPlayer(command[0]));
+
+                i++;
             }
             else
             {
