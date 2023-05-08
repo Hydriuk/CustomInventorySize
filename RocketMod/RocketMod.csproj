@@ -91,7 +91,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <Import Project="..\..\..\_Shared\PermissionsModule\PermissionsModule.projitems" Label="Shared" />
+  <Import Project="..\..\..\_Shared\Archive\PermissionsModule\PermissionsModule.projitems" Label="Shared" />
   <Import Project="..\CustomInventorySize\CustomInventorySize.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

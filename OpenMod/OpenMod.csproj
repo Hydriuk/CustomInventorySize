@@ -77,6 +77,6 @@
 
   <Import Project="..\CustomInventorySize\CustomInventorySize.projitems" Label="Shared" />
 
-  <Import Project="..\..\..\_Shared\PermissionsModule\PermissionsModule.projitems" Label="Shared" />
+  <Import Project="..\..\..\_Shared\Archive\PermissionsModule\PermissionsModule.projitems" Label="Shared" />
 
 </Project>
