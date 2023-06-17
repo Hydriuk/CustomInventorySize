@@ -1,5 +1,5 @@
 ﻿using CustomInventorySize.API;
-using CustomInventorySize.Models;
+using Hydriuk.UnturnedModules.Adapters;
 #if OPENMOD
 using Microsoft.Extensions.DependencyInjection;
 using OpenMod.API.Ioc;
@@ -7,6 +7,7 @@ using OpenMod.API.Ioc;
 using SDG.Unturned;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace CustomInventorySize.Services
 {
@@ -17,37 +18,23 @@ namespace CustomInventorySize.Services
     {
         private readonly ISizesProvider _sizesProvider;
         private readonly IThreadAdapter _threads;
+        private readonly IInventoryModifier _inventoryModifier;
 
-        public StorageModifier(ISizesProvider sizesProvider, IThreadAdapter threads)
+        public StorageModifier(ISizesProvider sizesProvider, IThreadAdapter threads, IInventoryModifier inventoryModifier)
         {
             _sizesProvider = sizesProvider;
             _threads = threads;
+            _inventoryModifier = inventoryModifier;
         }
 
         public async void ModifyStorage(InteractableStorage storage, ushort storageId)
         {
-            List<GroupSizes> groupSizes = await _sizesProvider.GetPrioritizedSizesAsync(storage.owner);
+            Vector2 size = await _sizesProvider.GetSizeAsync(storage.owner, storageId);
 
-            GroupSizes sizes = groupSizes.FirstOrDefault(sizes => sizes.Items.Any(item => item.Id == storageId) || sizes.Pages.Any(page => page.Page == PlayerInventory.STORAGE));
-
-            if (sizes == null)
+            if (size == -Vector2.one)
                 return;
 
-            ItemStorageSize size = sizes.Items.FirstOrDefault(item => item.Id == storageId);
-
-            if (size != null)
-            {
-                ModifyStorage(storage, size.Width, size.Height);
-                return;
-            }
-
-            PageSize pageSize = sizes.Pages.FirstOrDefault(page => page.Page == PlayerInventory.STORAGE);
-
-            if (pageSize != null)
-            {
-                ModifyStorage(storage, pageSize.Width, pageSize.Height);
-                return;
-            }
+            ModifyStorage(storage, (byte)size.x, (byte)size.y);
         }
 
         private void ModifyStorage(InteractableStorage storage, byte width, byte height)

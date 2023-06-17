@@ -1,4 +1,5 @@
 ﻿using CustomInventorySize.API;
+using Hydriuk.UnturnedModules.Adapters;
 #if OPENMOD
 using Microsoft.Extensions.DependencyInjection;
 using OpenMod.API.Ioc;
@@ -13,10 +14,10 @@ namespace CustomInventorySize.Services
 #endif
     public class ChatMessenger : IChatMessenger
     {
-        private readonly ITranslationsAdapter _translations;
+        private readonly ITranslationAdapter _translations;
         private readonly IThreadAdapter _threads;
 
-        public ChatMessenger(ITranslationsAdapter translations, IThreadAdapter threads)
+        public ChatMessenger(ITranslationAdapter translations, IThreadAdapter threads)
         {
             _translations = translations;
             _threads = threads;

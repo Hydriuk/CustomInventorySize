@@ -3,28 +3,3 @@
 # true: plugin is enabled
 # false: plugin is disabled
 Enabled: true
-
-# List of sizes by group
-Groups:
-
-  # Name of the openmod role
-- PermissionName: default
-
-  # List of clothes and their new inventory size
-  Items:
-  - Id: 253
-    Width: 10
-    Height: 20
-
-  # List of pages and their new inventory size
-  # Available pages :
-  # 2 : Hands
-  # 3 : Backpack
-  # 4 : Vest
-  # 5 : Shirt
-  # 6 : Pants
-  # 7 : Storage
-  Pages:
-  - Page: 2
-    Width: 5
-    Height: 5

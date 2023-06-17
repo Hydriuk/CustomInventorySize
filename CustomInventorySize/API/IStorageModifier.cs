@@ -1,5 +1,4 @@
-﻿using CustomInventorySize.Models;
-#if OPENMOD
+﻿#if OPENMOD
 using OpenMod.API.Ioc;
 #endif
 using SDG.Unturned;

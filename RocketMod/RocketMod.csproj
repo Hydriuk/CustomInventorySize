@@ -12,6 +12,8 @@
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <nullable>enable</nullable>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ROCKETMOD|AnyCPU'">
     <OutputPath>bin\ROCKETMOD\</OutputPath>
@@ -82,8 +84,6 @@
     <Compile Include="Events\PlayerClothingEquippedEvent.cs" />
     <Compile Include="Events\PlayerLifeUpdatedEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\ThreadAdapter.cs" />
-    <Compile Include="Services\TranslationsAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ic_scaled_bag.ico" />
@@ -91,7 +91,8 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <Import Project="..\..\..\_Shared\Archive\PermissionsModule\PermissionsModule.projitems" Label="Shared" />
   <Import Project="..\CustomInventorySize\CustomInventorySize.projitems" Label="Shared" />
+  <Import Project="..\..\UnturnedModules\RocketModModules\RocketModModules.projitems" Label="Shared" />
+  <Import Project="..\..\UnturnedModules\UnturnedModules\UnturnedModules.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

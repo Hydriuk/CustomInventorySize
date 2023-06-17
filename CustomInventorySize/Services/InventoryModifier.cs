@@ -1,14 +1,11 @@
 ﻿using CustomInventorySize.API;
-using CustomInventorySize.Models;
+using Hydriuk.UnturnedModules.Adapters;
 #if OPENMOD
 using Microsoft.Extensions.DependencyInjection;
 using OpenMod.API.Ioc;
 #endif
 using SDG.Unturned;
-using Steamworks;
-using System.Collections.Generic;
-using System.Linq;
-using static SDG.Provider.SteamGetInventoryResponse;
+using UnityEngine;
 
 namespace CustomInventorySize.Services
 {
@@ -28,168 +25,47 @@ namespace CustomInventorySize.Services
             _chatMessenger = chatMessenger;
         }
 
-        public async void ModifyInventoryByRoles(Player player)
+        public void ModifyInventory(Player player)
         {
-            // Get the player's groups ordered by priority
-            List<GroupSizes> groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(player.channel.owner.playerID.steamID);
-
-            EPage modifiedPages = EPage.Storage;
-
-            // Preset empty clothes / storage
-            if (player.clothing.backpack == 0) modifiedPages |= EPage.Backpack;
-            if (player.clothing.vest == 0) modifiedPages |= EPage.Vest;
-            if (player.clothing.shirt == 0) modifiedPages |= EPage.Shirt;
-            if (player.clothing.pants == 0) modifiedPages |= EPage.Pants;
-
-            foreach (var groupSizes in groupSizesList)
+            for (byte page = PlayerInventory.SLOTS; page < PlayerInventory.PAGES - 2; page++)
             {
-                // Get inventory pages that need to be modified
-                EPage pagesToModify = modifiedPages ^ (EPage.Inventory | EPage.Storage);
-
-                // Update all pages with the current group configuration
-                modifiedPages |= ModifyPagesByRole(player, groupSizes, pagesToModify);
-
-                // Stop if all pages are set
-                if (modifiedPages == (EPage.Inventory | EPage.Storage))
-                    break;
-            }
-
-            bool itemDropped = false;
-            // Reset pages that were not modified
-            if ((EPage.Hands & modifiedPages) != EPage.Hands)
-                itemDropped |= ResetHands(player);
-            if ((EPage.Backpack & modifiedPages) != EPage.Backpack)
-                itemDropped |= ResetBackpack(player);
-            if ((EPage.Vest & modifiedPages) != EPage.Vest)
-                itemDropped |= ResetVest(player);
-            if ((EPage.Shirt & modifiedPages) != EPage.Shirt)
-                itemDropped |= ResetShirt(player);
-            if ((EPage.Pants & modifiedPages) != EPage.Pants)
-                itemDropped |= ResetPants(player);
-
-            if (itemDropped)
-                _chatMessenger.WarnInventoryItemDropped(player);
-        }
-
-        public async void ModifyPageByRoles(Player player, byte pageIndex)
-        {
-            // Get the player's groups ordered by priority
-            List<GroupSizes> groupSizesList;
-            BarricadeDrop? barricade = null;
-            if (pageIndex == PlayerInventory.STORAGE)
-                return;
-
-            groupSizesList = await _sizesProvider.GetPrioritizedSizesAsync(player.channel.owner.playerID.steamID);
-
-            foreach (var groupSizes in groupSizesList)
-            {
-                // Modifies the pages and returns the modified pages
-                EPage modifiedPage = ModifyPageByRole(player, groupSizes, pageIndex, barricade?.asset.id ?? 0);
-
-                // Stop if the page has been modified
-                if (modifiedPage != EPage.None)
-                    return;
+                ModifyPage(player, page);
             }
         }
 
-        public EPage ModifyPage(Player player, byte pageIndex, byte width, byte height)
+        public async void ModifyPage(Player player, byte page)
         {
-            // Drop the items that are out of bounds of the page size
-            bool itemDropped = DropExcessInventory(player, pageIndex, width, height);
+            ItemBagAsset? clothAsset = GetPageItemAsset(player, page);
 
-            // Update inventory size
-            _threads.RunOnMainThread(() => player.inventory.items[pageIndex].resize(width, height));
-
-            if (itemDropped)
-                _chatMessenger.WarnInventoryItemDropped(player);
-
-            // Convert the page index to EPage
-            return (EPage)(1 << pageIndex);
-        }
-
-        /// <summary>
-        /// Change the size of a page under a role configuration
-        /// </summary>
-        /// <param name="player"> Player of whom to change the page size </param>
-        /// <param name="sizes"> Group configuration to use to change the page size </param>
-        /// <param name="pageIndex"> Page to change the size of </param>
-        /// <returns> A byte representing the indexes of the pages that have been changed </returns>
-        private EPage ModifyPageByRole(Player player, GroupSizes sizes, byte pageIndex, ushort storageId = 0)
-        {
-            if (pageIndex == PlayerInventory.SLOTS)
+            Vector2 size = -Vector2.one;
+            if (clothAsset != null)
             {
-                // Get the configuration for this page
-                PageSize pageSize = sizes.Pages.FirstOrDefault(page => page.Page == pageIndex);
-
-                // Change the page size
-                if (pageSize != null)
-                    return ModifyPage(player, pageIndex, pageSize.Width, pageSize.Height);
-
-                return 0;
+                size = await _sizesProvider.GetSizeAsync(player.channel.owner.playerID.steamID, clothAsset.id);
             }
 
-            // Get the item id of the player's equipped item on the current slot
-            ushort itemId = 0;
-            if (pageIndex == PlayerInventory.BACKPACK)
-                itemId = player.clothing.backpack;
-            else if (pageIndex == PlayerInventory.VEST)
-                itemId = player.clothing.vest;
-            else if (pageIndex == PlayerInventory.SHIRT)
-                itemId = player.clothing.shirt;
-            else if (pageIndex == PlayerInventory.PANTS)
-                itemId = player.clothing.pants;
-
-            // The item was removed, ignore the page
-            if (itemId == 0)
-                return (EPage)(1 << pageIndex);
-
-            // Get the configuration for this item
-            ItemStorageSize itemSize = sizes.Items.FirstOrDefault(item => item.Id == itemId);
-
-            if (itemSize != null)
+            // If player has no size permission for the size
+            if (size == -Vector2.one)
             {
-                // Change the page size
-                return ModifyPage(player, pageIndex, itemSize.Width, itemSize.Height);
+                size = await _sizesProvider.GetSizeAsync(player.channel.owner.playerID.steamID, page);
+            }
+
+            if (size == -Vector2.one)
+            {
+                ResetPage(player, page);
             }
             else
             {
-                // Get the default configuration for this page
-                PageSize pageSize = sizes.Pages.FirstOrDefault(page => page.Page == pageIndex);
-
-                // Change the page size
-                if (pageSize != null)
-                    return ModifyPage(player, pageIndex, pageSize.Width, pageSize.Height);
+                ModifyPage(player, page, (byte)size.x, (byte)size.y);
             }
-
-            return EPage.None;
         }
 
-        /// <summary>
-        /// Change the size of some pages under a role configuration
-        /// </summary>
-        /// <param name="player"> Player of whom to change the page size </param>
-        /// <param name="sizes"> Group configuration to use to change the page size </param>
-        /// <param name="pagesToModify"> A byte representing the indexes of the pages that need to be changed </param>
-        /// <returns> A byte representing the indexes of the pages that have been changed </returns>
-        private EPage ModifyPagesByRole(Player player, GroupSizes sizes, EPage pagesToModify)
+        public void ModifyPage(Player player, byte pageIndex, byte width, byte height)
         {
-            EPage modifiedPages = 0;
+            // Drop the items that are out of bounds of the page size
+            DropExcessInventory(player, pageIndex, width, height);
 
-            // Loop through player inventory slots only
-            for (byte pageIndex = PlayerInventory.SLOTS; pageIndex < PlayerInventory.PAGES - 1; pageIndex++)
-            {
-                EPage currentPage = (EPage)(1 << pageIndex);
-
-                // Pass if current page should not be modified
-                // In other word, is currentPage in pagesToModify ?
-                if ((currentPage & pagesToModify) != currentPage)
-                    continue;
-
-                // Change the page size and update the modifiedPages byte
-                modifiedPages |= ModifyPageByRole(player, sizes, pageIndex);
-            }
-
-            return modifiedPages;
+            // Update inventory size
+            _threads.RunOnMainThread(() => player.inventory.items[pageIndex].resize(width, height));
         }
 
         /// <summary>
@@ -200,7 +76,7 @@ namespace CustomInventorySize.Services
         /// <param name="width"> Width bound </param>
         /// <param name="height"> Height bound </param>
         /// <returns> True if at least one item was dropped </returns>
-        private bool DropExcessInventory(Player player, byte pageIndex, byte width, byte height)
+        private void DropExcessInventory(Player player, byte pageIndex, byte width, byte height)
         {
             bool itemDropped = false;
 
@@ -218,48 +94,8 @@ namespace CustomInventorySize.Services
                 }
             }
 
-            return itemDropped;
-        }
-
-        /// <summary>
-        /// Resets a page size
-        /// </summary>
-        /// <param name="player"> Player of whom to reset the page </param>
-        /// <param name="pageIndex"> Index of the page to reset </param>
-        private bool ResetPage(Player player, EPage page)
-        {
-            bool itemDropped = false;
-            switch (page)
-            {
-                case EPage.Hands:
-                    itemDropped = ResetHands(player);
-                    break;
-
-                case EPage.Backpack:
-                    if (player.clothing.backpack != 0)
-                        itemDropped = ResetBackpack(player);
-                    break;
-
-                case EPage.Vest:
-                    if (player.clothing.vest != 0)
-                        itemDropped = ResetVest(player);
-                    break;
-
-                case EPage.Shirt:
-                    if (player.clothing.shirt != 0)
-                        itemDropped = ResetShirt(player);
-                    break;
-
-                case EPage.Pants:
-                    if (player.clothing.pants != 0)
-                        itemDropped = ResetPants(player);
-                    break;
-
-                default:
-                    break;
-            }
-
-            return itemDropped;
+            if (itemDropped)
+                _chatMessenger.WarnInventoryItemDropped(player);
         }
 
         /// <summary>
@@ -268,109 +104,50 @@ namespace CustomInventorySize.Services
         /// <param name="player"> Player of whom to reset the inventory </param>
         public void ResetInventorySize(Player player)
         {
-            bool itemDropped = false;
-
-            // Reset Hands
-            itemDropped |= ResetHands(player);
-
-            // Reset backpack
-            if (player.clothing.backpack != 0)
-                itemDropped |= ResetBackpack(player);
-
-            // Reset vest
-            if (player.clothing.vest != 0)
-                itemDropped |= ResetVest(player);
-
-            // Reset shirt
-            if (player.clothing.shirt != 0)
-                itemDropped |= ResetShirt(player);
-
-            // Reset pants
-            if (player.clothing.pants != 0)
-                itemDropped |= ResetPants(player);
-
-            if (itemDropped)
-                _chatMessenger.WarnInventoryItemDropped(player);
+            for (byte page = PlayerInventory.SLOTS; page < PlayerInventory.PAGES - 2; page++)
+            {
+                ResetPage(player, page);
+            }
         }
 
-        /// <summary>
-        /// Reset the player's hands page
-        /// </summary>
-        /// <param name="player"> Player of whom to reset hands page </param>
-        private bool ResetHands(Player player)
+        private void ResetPage(Player player, byte page)
         {
-            bool itemDropped = DropExcessInventory(player, PlayerInventory.SLOTS, 5, 3);
-            _threads.RunOnMainThread(() => player.inventory.items[PlayerInventory.SLOTS].resize(5, 3));
+            byte width = 0;
+            byte height = 0;
 
-            return itemDropped;
-        }
+            if (page > PlayerInventory.SLOTS)
+            {
+                ItemBagAsset? clothAsset = GetPageItemAsset(player, page);
 
-        /// <summary>
-        /// Reset the player's backpack page
-        /// </summary>
-        /// <param name="player"> Player of whom to reset backpack page </param>
-        private bool ResetBackpack(Player player)
-        {
-            byte width = player.clothing.backpackAsset.width;
-            byte height = player.clothing.backpackAsset.height;
+                if (clothAsset == null)
+                    return;
 
-            bool itemDropped = DropExcessInventory(player, PlayerInventory.BACKPACK, width, height);
+                width = clothAsset.width;
+                height = clothAsset.height;
+            }
+            else
+            {
+                width = 5;
+                height = 3;
+            }
+
+            DropExcessInventory(player, page, width, height);
+
             _threads.RunOnMainThread(
-                () => player.inventory.items[PlayerInventory.BACKPACK].resize(player.clothing.backpackAsset.width, player.clothing.backpackAsset.height)
+                () => player.inventory.items[page].resize(width, height)
             );
-
-            return itemDropped;
         }
 
-        /// <summary>
-        /// Reset the player's vest page
-        /// </summary>
-        /// <param name="player"> Player of whom to reset vest page </param>
-        private bool ResetVest(Player player)
+        private ItemBagAsset? GetPageItemAsset(Player player, byte page)
         {
-            byte width = player.clothing.vestAsset.width;
-            byte height = player.clothing.vestAsset.height;
-
-            bool itemDropped = DropExcessInventory(player, PlayerInventory.VEST, width, height);
-            _threads.RunOnMainThread(() =>
-                player.inventory.items[PlayerInventory.VEST].resize(player.clothing.vestAsset.width, player.clothing.vestAsset.height)
-            );
-
-            return itemDropped;
-        }
-
-        /// <summary>
-        /// Reset the player's shirt page
-        /// </summary>
-        /// <param name="player"> Player of whom to reset shirt page </param>
-        private bool ResetShirt(Player player)
-        {
-            byte width = player.clothing.shirtAsset.width;
-            byte height = player.clothing.shirtAsset.height;
-
-            bool itemDropped = DropExcessInventory(player, PlayerInventory.SHIRT, width, height);
-            _threads.RunOnMainThread(() =>
-                player.inventory.items[PlayerInventory.SHIRT].resize(player.clothing.shirtAsset.width, player.clothing.shirtAsset.height)
-            );
-
-            return itemDropped;
-        }
-
-        /// <summary>
-        /// Reset the player's pants page
-        /// </summary>
-        /// <param name="player"> Player of whom to reset pants page </param>
-        private bool ResetPants(Player player)
-        {
-            byte width = player.clothing.pantsAsset.width;
-            byte height = player.clothing.pantsAsset.height;
-
-            bool itemDropped = DropExcessInventory(player, PlayerInventory.PANTS, width, height);
-            _threads.RunOnMainThread(() =>
-                player.inventory.items[PlayerInventory.PANTS].resize(player.clothing.pantsAsset.width, player.clothing.pantsAsset.height)
-            );
-
-            return itemDropped;
+            return page switch
+            {
+                3 => player.clothing.backpackAsset,
+                4 => player.clothing.vestAsset,
+                5 => player.clothing.shirtAsset,
+                6 => player.clothing.pantsAsset,
+                _ => null
+            };
         }
     }
 }

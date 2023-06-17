@@ -31,25 +31,25 @@ namespace CustomInventorySize.RocketMod.Events
         private void OnBackpackChanged(PlayerClothing clothing)
         {
             if (_enabled)
-                _inventoryModifier.ModifyPageByRoles(clothing.player, PlayerInventory.BACKPACK);
+                _inventoryModifier.ModifyPage(clothing.player, PlayerInventory.BACKPACK);
         }
 
         private void OnVestChanged(PlayerClothing clothing)
         {
             if (_enabled)
-                _inventoryModifier.ModifyPageByRoles(clothing.player, PlayerInventory.VEST);
+                _inventoryModifier.ModifyPage(clothing.player, PlayerInventory.VEST);
         }
 
         private void OnShirtChanged(PlayerClothing clothing)
         {
             if (_enabled)
-                _inventoryModifier.ModifyPageByRoles(clothing.player, PlayerInventory.SHIRT);
+                _inventoryModifier.ModifyPage(clothing.player, PlayerInventory.SHIRT);
         }
 
         private void OnPantsChanged(PlayerClothing clothing)
         {
             if (_enabled)
-                _inventoryModifier.ModifyPageByRoles(clothing.player, PlayerInventory.PANTS);
+                _inventoryModifier.ModifyPage(clothing.player, PlayerInventory.PANTS);
         }
     }
 }

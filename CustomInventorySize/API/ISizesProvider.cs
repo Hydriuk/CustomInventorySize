@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using CustomInventorySize.Models;
+﻿using System.Threading.Tasks;
 #if OPENMOD
 using OpenMod.API.Ioc;
 #endif
-using SDG.Unturned;
 using Steamworks;
+using UnityEngine;
 
 namespace CustomInventorySize.API
 {
@@ -14,13 +12,7 @@ namespace CustomInventorySize.API
 #endif
     public interface ISizesProvider
     {
-        /// <summary>
-        /// Get configured sizes for the player's groups
-        /// </summary>
-        /// <param name="playerId"> Id of the player of whom to get groups </param>
-        /// <returns> Sizes ordered by group priority </returns>
-        Task<List<GroupSizes>> GetPrioritizedSizesAsync(CSteamID playerId);
-
-        bool IsResizedItem(ushort id);
+        Task<Vector2> GetSizeAsync(CSteamID playerId, byte page);
+        Task<Vector2> GetSizeAsync(CSteamID playerId, ushort itemID);
     }
 }

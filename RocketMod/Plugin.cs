@@ -1,10 +1,9 @@
 ﻿using CustomInventorySize.API;
 using CustomInventorySize.RocketMod.Events;
-using CustomInventorySize.RocketMod.Services;
 using CustomInventorySize.Services;
 using HarmonyLib;
-using PermissionsModule.API;
-using PermissionsModule.RocketMod;
+using Hydriuk.RocketModModules.Adapters;
+using Hydriuk.UnturnedModules.Adapters;
 using Rocket.API.Collections;
 using Rocket.Core.Plugins;
 using SDG.Unturned;
@@ -16,8 +15,8 @@ namespace CustomInventorySize.RocketMod
         public static Plugin Instance { get; private set; }
 
         private ISizesProvider _sizesProvider;
-        private ITranslationsAdapter _translationsAdapter;
-        private IPermissionsAdapter _permissionsAdapter;
+        private ITranslationAdapter _translationsAdapter;
+        private IPermissionAdapter _permissionsAdapter;
         private IThreadAdapter _threadAdapter;
         private IInventoryModifier _inventoryModifier;
         private IChatMessenger _chatMessenger;
@@ -34,13 +33,13 @@ namespace CustomInventorySize.RocketMod
         {
             Instance = this;
 
-            _permissionsAdapter = new PermissionsAdapter();
+            _permissionsAdapter = new PermissionAdapter();
             _threadAdapter = new ThreadAdapter();
-            _sizesProvider = new SizesProvider(Configuration.Instance, _permissionsAdapter);
-            _translationsAdapter = new TranslationsAdapter(Translations.Instance);
+            _sizesProvider = new SizesProvider(_permissionsAdapter);
+            _translationsAdapter = new TranslationAdapter(Translations.Instance);
             _chatMessenger = new ChatMessenger(_translationsAdapter, _threadAdapter);
             _inventoryModifier = new InventoryModifier(_sizesProvider, _threadAdapter, _chatMessenger);
-            _storageModifier = new StorageModifier(_sizesProvider, _threadAdapter);
+            _storageModifier = new StorageModifier(_sizesProvider, _threadAdapter, _inventoryModifier);
 
             _playerConnectedEvent = new PlayerConnectedEvent(_inventoryModifier);
             _playerClothingEquippedEvent = new PlayerClothingEquippedEvent(_inventoryModifier);
@@ -54,7 +53,7 @@ namespace CustomInventorySize.RocketMod
             foreach (var sPlayer in Provider.clients)
             {
                 if (Configuration.Instance.Enabled)
-                    _inventoryModifier.ModifyInventoryByRoles(sPlayer.player);
+                    _inventoryModifier.ModifyInventory(sPlayer.player);
                 else
                     _inventoryModifier.ResetInventorySize(sPlayer.player);
             }

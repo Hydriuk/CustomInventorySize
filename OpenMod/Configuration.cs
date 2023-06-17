@@ -1,9 +1,7 @@
 ﻿using CustomInventorySize.API;
-using CustomInventorySize.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenMod.API.Ioc;
-using System.Collections.Generic;
 
 namespace CustomInventorySize.OpenMod
 {
@@ -11,7 +9,6 @@ namespace CustomInventorySize.OpenMod
     public class Configuration : IConfigurationAdapter
     {
         public bool Enabled { get; set; } = false;
-        public List<GroupSizes> Groups { get; set; } = new List<GroupSizes>();
 
         public Configuration(IConfiguration configurator)
         {

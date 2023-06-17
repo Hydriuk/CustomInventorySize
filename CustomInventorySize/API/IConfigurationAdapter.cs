@@ -1,11 +1,6 @@
-﻿using CustomInventorySize.Models;
-#if OPENMOD
+﻿#if OPENMOD
 using OpenMod.API.Ioc;
 #endif
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml.Serialization;
 
 namespace CustomInventorySize.API
 {
@@ -15,6 +10,5 @@ namespace CustomInventorySize.API
     public interface IConfigurationAdapter
     {
         public bool Enabled { get; set; }
-        public List<GroupSizes> Groups { get; set; }
     }
 }

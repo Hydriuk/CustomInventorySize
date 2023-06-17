@@ -20,7 +20,7 @@ namespace CustomInventorySize.OpenMod.Events
             if (!Plugin.Enabled)
                 return Task.CompletedTask;
 
-            _inventoryModifier.ModifyPageByRoles(@event.Player.Player, PlayerInventory.SLOTS);
+            _inventoryModifier.ModifyPage(@event.Player.Player, PlayerInventory.SLOTS);
 
             return Task.CompletedTask;
         }

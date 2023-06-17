@@ -25,7 +25,7 @@ namespace CustomInventorySize.RocketMod.Events
         private void OnPlayerLifeUpdated(Player player)
         {
             if (_enabled)
-                _inventoryModifier.ModifyPageByRoles(player, PlayerInventory.SLOTS);
+                _inventoryModifier.ModifyPage(player, PlayerInventory.SLOTS);
         }
     }
 }

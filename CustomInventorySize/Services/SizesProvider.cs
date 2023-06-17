@@ -1,17 +1,14 @@
 ﻿using CustomInventorySize.API;
-using CustomInventorySize.Models;
+using Hydriuk.UnturnedModules.Adapters;
 #if OPENMOD
 using Microsoft.Extensions.DependencyInjection;
 using OpenMod.API.Ioc;
 #endif
-using PermissionsModule.API;
-using SDG.Unturned;
 using Steamworks;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace CustomInventorySize.Services
 {
@@ -20,34 +17,47 @@ namespace CustomInventorySize.Services
 #endif
     public class SizesProvider : ISizesProvider
     {
-        private readonly Dictionary<string, GroupSizes> _groupSizesProvider;
-        private readonly IPermissionsAdapter _permissionsAdapter;
-        private readonly HashSet<ushort> _resizedItems;
+        private readonly IPermissionAdapter _permissionsAdapter;
 
-        public SizesProvider(IConfigurationAdapter configuration, IPermissionsAdapter permissionsAdapter)
+        private const string _prefix = "inventorysize";
+
+        public SizesProvider(IPermissionAdapter permissionsAdapter)
         {
-            _groupSizesProvider = configuration.Groups.ToDictionary(group => group.PermissionName);
             _permissionsAdapter = permissionsAdapter;
-
-            _resizedItems = _groupSizesProvider.Values
-                .SelectMany(sizes => sizes.Items.Select(item => item.Id))
-                .ToHashSet();
         }
 
-        public async Task<List<GroupSizes>> GetPrioritizedSizesAsync(CSteamID playerId)
+        public Task<Vector2> GetSizeAsync(CSteamID playerId, byte page)
         {
-            IEnumerable<string> roles = await _permissionsAdapter.PrioritizePermissions(playerId, _groupSizesProvider.Keys);
+            string prefix = $"{_prefix}.page.{page}.";
 
-            List<GroupSizes> sizesOrderedList = new List<GroupSizes>();
-            foreach (var role in roles)
-            {
-                if (_groupSizesProvider.TryGetValue(role, out GroupSizes sizes))
-                    sizesOrderedList.Add(sizes);
-            }
-
-            return sizesOrderedList;
+            return GetAndParsePermissions(playerId, prefix);
         }
 
-        public bool IsResizedItem(ushort id) => _resizedItems.Contains(id);
+        public Task<Vector2> GetSizeAsync(CSteamID playerId, ushort itemID)
+        {
+            string prefix = $"{_prefix}.item.{itemID}.";
+
+            return GetAndParsePermissions(playerId, prefix);
+        }
+
+        private async Task<Vector2> GetAndParsePermissions(CSteamID playerId, string prefix)
+        {
+            IEnumerable<string> permissions = await _permissionsAdapter.GetPrioritizedPermissions(playerId, @$"^{prefix}\d*.\d*$");
+
+            string permission = permissions.FirstOrDefault();
+
+            if (permission == null)
+                return -Vector2.one;
+
+            // Parse size
+            string sizeString = permission.Replace(prefix, string.Empty);
+
+            string[] sizes = sizeString.Split('.');
+
+            if (!byte.TryParse(sizes[0], out byte x) || !byte.TryParse(sizes[1], out byte y))
+                return -Vector2.one;
+
+            return new Vector2(x, y);
+        }
     }
 }
