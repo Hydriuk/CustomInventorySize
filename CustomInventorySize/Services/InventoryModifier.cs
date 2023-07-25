@@ -37,6 +37,12 @@ namespace CustomInventorySize.Services
         {
             ItemBagAsset? clothAsset = GetPageItemAsset(player, page);
 
+            if (clothAsset == null && page != PlayerInventory.SLOTS)
+            {
+                ModifyPage(player, page, 0, 0);
+                return;
+            }
+
             Vector2 size = -Vector2.one;
             if (clothAsset != null)
             {
