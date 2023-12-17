@@ -2,13 +2,14 @@
 using OpenMod.API.Ioc;
 #endif
 using SDG.Unturned;
+using System;
 
 namespace CustomInventorySize.API
 {
 #if OPENMOD
     [Service]
 #endif
-    public interface IInventoryModifier
+    public interface IInventoryModifier : IDisposable
     {
         /// <summary>
         /// Change the size of all player inventory pages to the one configured in their most prioritized group

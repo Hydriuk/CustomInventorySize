@@ -14,7 +14,7 @@ namespace CustomInventorySize.Services
 #if OPENMOD
     [PluginServiceImplementation(Lifetime = ServiceLifetime.Singleton)]
 #endif
-    public class StorageModifier : IStorageModifier
+    internal class StorageModifier : IStorageModifier
     {
         private readonly ISizesProvider _sizesProvider;
         private readonly IThreadAdapter _threads;

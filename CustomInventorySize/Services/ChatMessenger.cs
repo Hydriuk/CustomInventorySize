@@ -12,7 +12,7 @@ namespace CustomInventorySize.Services
 #if OPENMOD
     [PluginServiceImplementation(Lifetime = ServiceLifetime.Singleton)]
 #endif
-    public class ChatMessenger : IChatMessenger
+    internal class ChatMessenger : IChatMessenger
     {
         private readonly ITranslationAdapter _translations;
         private readonly IThreadAdapter _threads;

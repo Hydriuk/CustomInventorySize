@@ -70,6 +70,7 @@ namespace CustomInventorySize.RocketMod
             _playerClothingEquippedEvent.Dispose();
             _playerLifeUpdatedEvent.Dispose();
             _barricadeDeployedEvent.Dispose();
+            _inventoryModifier.Dispose();
 
             _harmony.UnpatchAll("Hydriuk.CustomInventorySize");
         }

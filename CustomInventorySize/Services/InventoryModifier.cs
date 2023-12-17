@@ -1,5 +1,7 @@
 ﻿using CustomInventorySize.API;
+using CustomInventorySize.Events;
 using Hydriuk.UnturnedModules.Adapters;
+using Hydriuk.UnturnedModules.Extensions;
 #if OPENMOD
 using Microsoft.Extensions.DependencyInjection;
 using OpenMod.API.Ioc;
@@ -12,7 +14,7 @@ namespace CustomInventorySize.Services
 #if OPENMOD
     [PluginServiceImplementation(Lifetime = ServiceLifetime.Singleton)]
 #endif
-    public class InventoryModifier : IInventoryModifier
+    internal class InventoryModifier : IInventoryModifier
     {
         private readonly ISizesProvider _sizesProvider;
         private readonly IThreadAdapter _threads;
@@ -23,6 +25,32 @@ namespace CustomInventorySize.Services
             _sizesProvider = sizesProvider;
             _threads = threads;
             _chatMessenger = chatMessenger;
+
+            ItemDiscard.ItemDiscarding += OnDiscardingItem;
+        }
+
+        public void Dispose()
+        {
+            ItemDiscard.ItemDiscarding -= OnDiscardingItem;
+        }
+
+        private bool OnDiscardingItem(Player player, byte page, ushort itemID)
+        {
+            if (itemID == 0)
+                return true;
+
+            Vector2 size = _sizesProvider.GetSizeAsync(player.GetSteamID(), itemID).Result;
+
+            if(size == -Vector2.one)
+            {
+                size = _sizesProvider.GetSizeAsync(player.GetSteamID(), page).Result;
+
+                return size == -Vector2.one;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public void ModifyInventory(Player player)

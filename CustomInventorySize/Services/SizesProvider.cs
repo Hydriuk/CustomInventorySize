@@ -15,7 +15,7 @@ namespace CustomInventorySize.Services
 #if OPENMOD
     [PluginServiceImplementation(Lifetime = ServiceLifetime.Singleton)]
 #endif
-    public class SizesProvider : ISizesProvider
+    internal class SizesProvider : ISizesProvider
     {
         private readonly IPermissionAdapter _permissionsAdapter;
 
@@ -53,7 +53,6 @@ namespace CustomInventorySize.Services
             string sizeString = permission.Replace(prefix, string.Empty);
 
             string[] sizes = sizeString.Split('.');
-
             if (!byte.TryParse(sizes[0], out byte x) || !byte.TryParse(sizes[1], out byte y))
                 return -Vector2.one;
 

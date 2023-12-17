@@ -14,6 +14,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)API\IInventoryModifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)API\ISizesProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)API\IStorageModifier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\ItemDiscard.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\ChatMessenger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\InventoryModifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\SizesProvider.cs" />
